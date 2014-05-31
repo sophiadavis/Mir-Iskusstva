@@ -4,4 +4,6 @@
 *.csv
 *.png
 
+play/
+
 *.pyc
