@@ -1,9 +1,17 @@
 *.jpg
 *.gif
 *.txt
-*.csv
 *.png
+
+*.pyc
+
+.~lock.*
+*.csv
 
 play/
 
-*.pyc
+Aivazovskii/
+CritRealism/
+Icons/
+Modernism/
+SocRealism/
