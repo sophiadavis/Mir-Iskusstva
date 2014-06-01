@@ -13,28 +13,35 @@ import csv
 import re
 
 def main():
+    print "\nProcessing colors..."
     directories = [r"Aivazovskii/small", r"CritRealism/small", r"Icons/small", r"Modernism/small", r"SocRealism/small"]
     images = {}
     for sub in directories:
         images[sub] = glob.glob(sub + r"/*")
-    print images
     
     # define ranges of bins for histogram 
     cutPts = range(0, 255, 255/10)[:-1] # 9 bins with 25 values, 10th bin has 30
     
     with open('imageColorData.csv', 'wb') as f: # use 'a' if this takes forever and we have problems 
         writer = csv.writer(f)
-        writer.writerow(["Movement", "File", "NumColors", "AvgColor"] + 
+        writer.writerow(["Movement", "File", "NumColors", "AvgR", "AvgG", "AvgB"] + 
                             ["Gray" + str(cutPt) for cutPt in cutPts] + 
                             ["Red" + str(cutPt) for cutPt in cutPts] + 
                             ["Green" + str(cutPt) for cutPt in cutPts] +
                             ["Blue" + str(cutPt) for cutPt in cutPts])
         
         for sub in directories:
+            print "\n--Inside " + sub 
+            mvmt = re.search(r"(.*)/small", sub).group(1)
             for image in images[sub]:
+                
+                name = re.search(r"small/(.*)_small", image).group(1)
+                print "****" + name
+                
                 # overall color metrics
                 numColors = subprocess.check_output(["identify", "-format", "%k", image])
                 avgColor = subprocess.check_output(["convert", image, "-scale", "1x1\!", "-format", "%[fx:int(255*r+.5)],%[fx:int(255*g+.5)],%[fx:int(255*b+.5)]", "info:"])
+                avgColorList = avgColor.split(',')
             
                 #### bin values of histograms
                 ## gray = luminance
@@ -57,14 +64,10 @@ def main():
                 greenBins = binHistogram(greenHist)
                 blueBins = binHistogram(blueHist)
             
-                print "Gray Histogram Values:" + str(grayBins)
-                print "Red Histogram Values:" + str(redBins)
-                print "Green Histogram Values:" + str(greenBins)
-                print "Blue Histogram Values:" + str(blueBins)
-                attrs = [sub, image, numColors, avgColor] + grayBins + redBins + greenBins + blueBins
-                print attrs
+                attrs = [mvmt, name, numColors] + avgColorList + grayBins + redBins + greenBins + blueBins
                 writer.writerow(attrs)
     f.close()
+    print "\nDone.\n"
     
 def binHistogram(hist):
     # regex patterns for parsing histogram output

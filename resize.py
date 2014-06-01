@@ -14,16 +14,24 @@ import os
 import re
 
 def main():
+    print "\nResizing images..."
     directories = ["Aivazovskii", "CritRealism", "Icons", "Modernism", "SocRealism"]
     images = {}
+    
+    # get list of all images (.jpg or .jpeg)
     for sub in directories:
-        images[sub] = glob.glob(sub + r"/*g") # only take jpeg or jpg
-    print images
+        images[sub] = glob.glob(sub + r"/*g")
+    
+    # resize each image, rename, and save to "small" sub-folder
     for sub in directories:
-            for image in images[sub]:
-                name = re.search(r"/(.*)[.]", image).group(1) # extract 'artist_name' from file name
-                command = "convert -scale 100x100! " + image + ' ' + sub + "/small/" + name + "_small.jpg"
-                os.system(command)
-
+        print "\n--Inside " + sub
+        for image in images[sub]:
+            name = re.search(r"/(.*)[.]", image).group(1) # extract 'artist_name' from file name
+            print "****" + name
+            
+            command = "convert -scale 100x100! " + image + ' ' + sub + "/small/" + name + "_small.jpg"
+            os.system(command)
+            
+    print "\nDone.\n"
 if __name__ == "__main__":
     main()
