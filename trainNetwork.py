@@ -15,7 +15,7 @@ def main():
         sys.stderr.write('Usage: python ' + sys.argv[0] + ' trainingdata.csv\n')
         sys.exit(1)
     else:
-        print "Reading in data..."
+        print "Reading in data...\n"
         with open(sys.argv[1], 'rb') as f:
             imagereader = csv.reader(f)
             data = []
@@ -30,7 +30,7 @@ def main():
         alpha = 0.4
         numHiddenLayers = 1
         numNodesPerLayer = 5
-        Network = NeuralNetwork(alpha, numHiddenLayers, numNodesPerLayer)
+        #Network = NeuralNetwork(alpha, numHiddenLayers, numNodesPerLayer)
         
         ####### Parse training data    
         ### Collect all possible attributes and classifications
@@ -39,7 +39,7 @@ def main():
         trainingSet, classifs = parseData(data)
         
         # Initialize input, hidden, and output layers    
-        Network.initLayers(attributes, classifs)
+        Network = initLayers(attributes, classifs, numHiddenLayers, numNodesPerLayer)
         
         showNetwork(trainingSet, Network, attributes, classifs, True)
         
@@ -54,27 +54,25 @@ def main():
 ############################################################################################    
 ############################################## Forward Propogation
 # An implementation of forward propagation
-def forwardPropogate(dataItem, Network):
-
-    net = Network.layers
+def forwardPropogate(dataItem, network):
     
     ### Pass data input values into input layer
-    inputNodes = net[0] 
+    inputNodes = network[0] 
     for i, val in enumerate(dataItem.values):
         input = inputNodes[i]
         input.value = val
     
     # Progress! through rest of layers
-    for i in range(1,len(net)):
-        net[i] = feedForward(net[i-1], net[i])
+    for i in range(1,len(network)):
+        network[i] = feedInputsForward(network[i-1], network[i])
         
-    return Network
+    return network
 
 # Takes output from each node at previous level, turns into input at next level    
-def feedForward(prevLayer, nextLayer):
+def feedInputsForward(prevLayer, nextLayer):
     for nextNode in nextLayer:
         for prevNode in prevLayer:
-            a = prevNode.output()
+            a = prevNode.output() # output = g(weighted sum of inputs)
             nextNode.inputs.append(a)        
     return nextLayer
     
@@ -85,54 +83,49 @@ def backwardPropogate(Network, alpha):
     
 ############################################################################################    
 ############################################## Network
-class NeuralNetwork:
-    def __init__(self, alpha, numHiddenLayers, numNodesPerLayer):
-        self.alpha = alpha
-        self.numHidden = numHiddenLayers
-        self.numNodesPerLayer = numNodesPerLayer  
-        self.layers = []
+def initLayers(attributes, classifs, numHiddenLayers, numNodesPerLayer):
+    Network = []
+    # initialize input nodes
+    inputNodes = []
+    for attr in attributes:
+        inNode = InputNode(attr)
+        inputNodes.append(inNode)
+    Network.append(inputNodes)
     
-    def initLayers(self, attributes, classifs):
-        # initialize input nodes
-        inputNodes = []
-        for attr in attributes:
-            inNode = InputNode(attr)
-            inputNodes.append(inNode)
-        self.layers.append(inputNodes)
-        
-        # Initialize hidden nodes
-        numHiddenNodeWts = len(inputNodes) + 1 # + 1  -- dummy for constant term
-        for i in range(self.numHidden):
-            hiddenLayer = []
-            for j in range(self.numNodesPerLayer):
-                hidden = HiddenNode(i, numHiddenNodeWts)
-                hiddenLayer.append(hidden)
-            self.layers.append(hiddenLayer)
-        
-        # Initialize output nodes
-        outputNodes = []
-        numOutNodeWts = self.numNodesPerLayer + 1
-        for classif in classifs:
-            outNode = OutputNode(classif, numOutNodeWts)
-            outputNodes.append(outNode)
-        self.layers.append(outputNodes) 
+    # Initialize hidden nodes
+    numHiddenNodeWts = len(inputNodes) + 1 # + 1  -- dummy for constant term
+    for i in range(numHiddenLayers):
+        hiddenLayer = []
+        for j in range(numNodesPerLayer):
+            hidden = HiddenNode(i, numHiddenNodeWts)
+            hiddenLayer.append(hidden)
+        Network.append(hiddenLayer)
+    
+    # Initialize output nodes
+    outputNodes = []
+    numOutNodeWts = numNodesPerLayer + 1
+    for classif in classifs:
+        outNode = OutputNode(classif, numOutNodeWts)
+        outputNodes.append(outNode)
+    Network.append(outputNodes) 
+    return Network
         
 # Prints network nodes and training data, for debugging purposes
-def showNetwork(data, Network, attributes, classifs, showData):
+def showNetwork(data, network, attributes, classifs, showData):
     print "~~~~~~~~~~~~~~~~~~~~~~~~~~~NETWORK~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     print "Names of attributes: " + str(attributes)
     print "\nTypes of classifications: " + str(classifs)
     print "------"
     print "Input Nodes: "
-    for node in Network.layers[0]:
+    for node in network[0]:
         print node
     print "\nHidden Nodes: "
-    for i, layer in enumerate(Network.layers[1:-1]):
+    for i, layer in enumerate(network[1:-1]):
         print "--hidden layer " + str(i)
         for node in layer:
             print node
     print "\nOutput Nodes: "
-    for node in Network.layers[-1]:
+    for node in network[-1]:
         print node
     print "------"
     if showData:
