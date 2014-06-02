@@ -31,61 +31,46 @@ def main():
         numHiddenLayers = 1
         numNodesPerLayer = 5
         Network = NeuralNetwork(alpha, numHiddenLayers, numNodesPerLayer)
-        global attributes
-        global classifs
         
         ####### Parse training data    
         ### Collect all possible attributes and classifications
         attributes = data[0][2:] # first index is the classification
-        classifsSet = set([]) 
-        
-        ### Turn each line into 'DataItem' instance
         data = data[1:]
-        trainingSet = []
-        for ex in data:
-            classif = ex[0]
-            name = ex[1]
-            values = [int(val) for val in ex[2:]] # add x0
-            item = DataItem(name, classif, values)
-            trainingSet.append(item)
-            classifsSet.add(classif)
-        classifs = list(classifsSet)
+        trainingSet, classifs = parseData(data)
         
         # Initialize input, hidden, and output layers    
-        Network.initLayers()
-            
+        Network.initLayers(attributes, classifs)
         
+        showNetwork(trainingSet, Network, attributes, classifs, True)
         
-           
-        
-        ####################### check!
-        showNetwork(trainingSet, Network, True)
-        
-        # pass input to first layer
+        # Forward and Backward propagate, given data from each data item
         for ex in trainingSet[0:1]:
             Network = forwardPropogate(ex, Network)
         
-        ####################### Start ForwardPropogation!
-        showNetwork(trainingSet, Network, False)
+        showNetwork(trainingSet, Network, attributes, classifs, False)
         
     
 
 ############################################################################################    
 ############################################## Forward Propogation
+# An implementation of forward propagation
 def forwardPropogate(dataItem, Network):
 
     net = Network.layers
-    ### initialize input values
+    
+    ### Pass data input values into input layer
     inputNodes = net[0] 
     for i, val in enumerate(dataItem.values):
         input = inputNodes[i]
         input.value = val
     
+    # Progress! through rest of layers
     for i in range(1,len(net)):
         net[i] = feedForward(net[i-1], net[i])
         
     return Network
-    
+
+# Takes output from each node at previous level, turns into input at next level    
 def feedForward(prevLayer, nextLayer):
     for nextNode in nextLayer:
         for prevNode in prevLayer:
@@ -107,7 +92,7 @@ class NeuralNetwork:
         self.numNodesPerLayer = numNodesPerLayer  
         self.layers = []
     
-    def initLayers(self):
+    def initLayers(self, attributes, classifs):
         # initialize input nodes
         inputNodes = []
         for attr in attributes:
@@ -133,7 +118,7 @@ class NeuralNetwork:
         self.layers.append(outputNodes) 
         
 # Prints network nodes and training data, for debugging purposes
-def showNetwork(data, Network, showData):
+def showNetwork(data, Network, attributes, classifs, showData):
     print "~~~~~~~~~~~~~~~~~~~~~~~~~~~NETWORK~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     print "Names of attributes: " + str(attributes)
     print "\nTypes of classifications: " + str(classifs)
@@ -153,7 +138,7 @@ def showNetwork(data, Network, showData):
     if showData:
         print "Data: "
         for item in data:
-            print item
+            print item.formatWithAttrs(attributes)
         
     print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
             
@@ -224,6 +209,20 @@ def gprime(x):
 
 ############################################################################################
 ############################################## Data
+# Parse each csv line into a 'DataItem' instance, while keeping track of all classifications
+def parseData(data):
+    trainingSet = []
+    classifsSet = set([])
+    for ex in data:
+        classif = ex[0]
+        name = ex[1]
+        values = [int(val) for val in ex[2:]] # add x0
+        item = DataItem(name, classif, values)
+        trainingSet.append(item)
+        classifsSet.add(classif)
+    classifs = list(classifsSet)
+    return trainingSet, classifs
+    
 class DataItem:
     def __init__(self, name, classification, values):
         self.name = name
@@ -231,6 +230,10 @@ class DataItem:
         self.classif = classification
         
     def __str__(self):
+        toPrint = self.name + " -- " + self.classif 
+        return toPrint + "\n"
+    
+    def formatWithAttrs(self, attributes):
         toPrint = self.name + " -- " + self.classif 
         for i, attr in enumerate(attributes):
             toPrint += "\n**" + attr + " : " + str(self.values[i])
