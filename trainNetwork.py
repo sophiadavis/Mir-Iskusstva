@@ -28,9 +28,9 @@ def main():
         ######################## Initialization
         ####### Set network properties
         alpha = 0.4
+        mu = 1000/(1000 + 1) # Control parameter for momentum
         numHiddenLayers = 1
         numNodesPerLayer = 5
-        #Network = NeuralNetwork(alpha, numHiddenLayers, numNodesPerLayer)
         
         ####### Parse training data    
         ### Collect all possible attributes and classifications
@@ -41,14 +41,29 @@ def main():
         # Initialize input, hidden, and output layers    
         Network = initLayers(attributes, classifs, numHiddenLayers, numNodesPerLayer)
         
-        showNetwork(trainingSet, Network, attributes, classifs, True)
+        #showNetwork(trainingSet, Network, attributes, classifs, True)
         
-        # Forward and Backward propagate, given data from each data item
-        for ex in trainingSet[0:1]:
-            Network = forwardPropogate(ex, Network)
+        # Forward and Backward propagate, given each data item
+        # MAYBE SHUFFLE SET SO THAT IT TRAINS IN A DIFFERENT ORDER?
+        for j in range(100):
+            print
+            print "~~~~~~~~~~~~~~~~~Iteration " + str(j)
+            trainingSumSquaredError = 0.0
+            for i, ex in enumerate(trainingSet):
+                print
+                print "***************Starting example " + str(i)
+                print ex.formatWithAttrs(attributes)
+                Network = resetNodeInputs(Network) # Inputs (but not weights) need to be reset
+                Network = forwardPropogate(ex, Network)
+                Network, error = backwardPropogate(ex, Network, alpha, mu)
+                trainingSumSquaredError += error
+            
+            meanSquaredError = trainingSumSquaredError/len(trainingSet)
+            print
+            print "Iteration Mean Squared Error: " + str(meanSquaredError)
+            mu = 1000/(1000 + (j + 2)) # Decrease influence of momentum
         
-        showNetwork(trainingSet, Network, attributes, classifs, False)
-        
+        #showNetwork(trainingSet, Network, attributes, classifs, False)
     
 
 ############################################################################################    
@@ -63,29 +78,102 @@ def forwardPropogate(dataItem, network):
         input.value = val
     
     # Progress! through rest of layers
-    for i in range(1,len(network)):
+    for i in range(1, len(network)):
         network[i] = feedInputsForward(network[i-1], network[i])
         
     return network
 
-# Takes output from each node at previous level, turns into input at next level    
+# Channels output from each node at previous level into input at next level    
 def feedInputsForward(prevLayer, nextLayer):
     for nextNode in nextLayer:
         for prevNode in prevLayer:
-            a = prevNode.output() # output = g(weighted sum of inputs)
+            a = prevNode.output() # output = g(weighted sum of inputs to prevNode)
             nextNode.inputs.append(a)        
     return nextLayer
     
 ############################################################################################    
 ############################################## Backward Propogation
-def backwardPropogate(Network, alpha):
-    pass
+def backwardPropogate(ex, network, alpha, mu):
+    
+    # Keep track of squared error to evaluate performance
+    sumSquaredError = 0.0
+    
+    # Update weights between output and last hidden layer
+    outNodes = network[-1]
+    backLayer = network[-2]
+    for out in outNodes:
+        print "Out " + out.classif + ": " + str(out.output())
+        
+        # Calculate error (error = target - output)
+        if ex.classif == out.classif:
+            error = 1 - out.output()
+        else:
+            error = 0 - out.output()
+        sumSquaredError += math.pow(error, 2)
+        
+        # Update weights 
+        out.deltaPrev = out.delta # Save gradient from previous iteration -- for momentum calculation
+        out.delta = getGradient(out.inputs, out.weights, error)
+        out.weights = updateWeights(out, backLayer, alpha, mu)
+            
+    # Update weights between hidden layers
+    for i in range(3, len(network) - 2):    
+        nextLayer = network[-i + 1]
+        currentLayer = network[-i]
+        backLayer = network[-i - 1]
+        print nextLayer[0]
+        
+        for i, node in enumerate(currentLayer):
+            # Calculate error by summing up over all nodes in next level
+            error = 0
+            for nextNode in nextLayer:
+                wt = nextNode.weight[i+1] # bypass dummy weight to find wt connecting node w nextNode
+                error += wt * nextNode.delta
+            
+            # Update weights
+            node.delta = getGradient(node.inputs, node.weights, error)
+            node.weights = updateWeights(node, backLayer, alpha)
+    
+    
+    meanSquareError = sumSquaredError/len(outNodes)
+    return network, meanSquareError
+
+# Calculate gradient values to update weights         
+def getGradient(inputs, weights, error):
+    wtInputs = weightedInputs(inputs, weights)
+    delta = gprime(wtInputs) * error   
+    
+    return delta 
+
+# Calculate momentum (incorporates information from gradient of previous iteration)
+# Helps avoid settling in local minima
+def getMomentum(node, mu):
+    if node.deltaPrev:
+        return mu * node.deltaPrev
+    else:
+        return 0
+
+# Use learning rate, momentum and gradient to update all weights into a given node
+def updateWeights(node, backLayer, alpha, mu):
+    weights = node.weights
+    
+    # Update weight for constant bias term
+    weights[0] = (weights[0] + alpha * 1 * node.delta) + getMomentum(node, mu)
+    
+    # Iterate over all nodes in previous layer connected to current node to update corresponding weight 
+    for i in range(1, len(weights)):
+        hidden = backLayer[i-1]
+        aj = hidden.output()
+        weights[i] = weights[i] + alpha * aj * node.delta + getMomentum(node, mu)
+    
+    return weights
     
 ############################################################################################    
 ############################################## Network
 def initLayers(attributes, classifs, numHiddenLayers, numNodesPerLayer):
     Network = []
-    # initialize input nodes
+    
+    # Initialize input nodes
     inputNodes = []
     for attr in attributes:
         inNode = InputNode(attr)
@@ -93,7 +181,7 @@ def initLayers(attributes, classifs, numHiddenLayers, numNodesPerLayer):
     Network.append(inputNodes)
     
     # Initialize hidden nodes
-    numHiddenNodeWts = len(inputNodes) + 1 # + 1  -- dummy for constant term
+    numHiddenNodeWts = len(inputNodes) + 1 # + 1  -- include weight for constant bias term
     for i in range(numHiddenLayers):
         hiddenLayer = []
         for j in range(numNodesPerLayer):
@@ -103,12 +191,19 @@ def initLayers(attributes, classifs, numHiddenLayers, numNodesPerLayer):
     
     # Initialize output nodes
     outputNodes = []
-    numOutNodeWts = numNodesPerLayer + 1
+    numOutNodeWts = numNodesPerLayer + 1 # + 1  -- include weight for constant bias term
     for classif in classifs:
         outNode = OutputNode(classif, numOutNodeWts)
         outputNodes.append(outNode)
     Network.append(outputNodes) 
     return Network
+
+# Removes inputs from hidden and output nodes before each forward/backward iteration 
+def resetNodeInputs(network):
+    for layer in network[1:]:
+        for node in layer:
+            node.inputs = [1] # Leave only constant bias term
+    return network
         
 # Prints network nodes and training data, for debugging purposes
 def showNetwork(data, network, attributes, classifs, showData):
@@ -141,7 +236,9 @@ def showNetwork(data, network, attributes, classifs, showData):
 class Node:
     def __init__(self, numWeights):
         self.weights = [0.05] * numWeights
-        self.inputs = [1] # start with dummy for constant term
+        self.inputs = [1] # start with 1 constant bias term
+        self.delta = None
+        self.deltaPrev = None
     
     def output(self):
         weightedIn = weightedInputs(self.inputs, self.weights)
