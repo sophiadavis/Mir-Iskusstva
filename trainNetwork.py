@@ -21,6 +21,7 @@ def main():
         sys.stderr.write('Usage: python ' + sys.argv[0] + ' trainingDataFile.csv\n')
         sys.exit(1)
     else:
+        timerStart = time.time()
         print "Reading in data...\n"
         with open(sys.argv[1], 'rb') as f:
             imagereader = csv.reader(f)
@@ -34,7 +35,7 @@ def main():
         alpha = 1000.0/(2 * (1000.0 + 1.0))
         mu = 1000.0/(1000.0 + 1.0) # Control parameter for momentum
         testSize = 1 # Size of test set (from group of examples with each classification)
-        numHiddenLayers = 3
+        numHiddenLayers = 5
         numNodesPerLayer = 10
         
         ####### Parse data    
@@ -79,6 +80,9 @@ def main():
             mu = 1000.0/(1000.0 + (j + 2.0)) # Decrease influence of momentum
             print alpha
             print mu
+        
+        timerEnd = time.time()
+        print "Time elapsed: " + str(float(timerEnd - timerStart)/(60*60)) + " minutes."
         #showNetwork(trainingSet, Network, attributes, classifs, False)
         pickle.dump(Network, open('Network.dat', 'w'))
         pickle.dump(testSet, open('testSet.dat', 'w'))
