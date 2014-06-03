@@ -11,6 +11,7 @@ import csv
 import math
 import random
 import pickle
+import time
 
 from Node import *
 from Data import *
@@ -30,8 +31,8 @@ def main():
         
         ######################## Initialization
         ####### Set network properties
-        alpha = 1000/(1000 + 1)
-        mu = 1000/(1000 + 1) # Control parameter for momentum
+        alpha = 1000.0/(2 * (1000.0 + 1.0))
+        mu = 1000.0/(1000.0 + 1.0) # Control parameter for momentum
         testSize = 1 # Size of test set (from group of examples with each classification)
         numHiddenLayers = 3
         numNodesPerLayer = 10
@@ -59,7 +60,7 @@ def main():
             trainingSumMSE = 0.0
             for i, ex in enumerate(trainingSet):
                 Network = forwardPropogate(ex, Network)
-                Network, error = backwardPropogate(ex, Network, alpha, mu)
+                Network, error, wtChange = backwardPropogate(ex, Network, alpha, mu)
                 Network = resetNodeInputs(Network) # Inputs (but not weights) need to be reset after each iteration
                 trainingSumMSE += error
                 if j == 999:
@@ -72,10 +73,12 @@ def main():
             
             MSE = trainingSumMSE/len(trainingSet)
             print
-            print "Iteration Mean Squared Error: " + str(MSE)
-            alpha = 1000/(1000 + (j + 2)) # Decrease learning rate
-            mu = 1000/(1000 + (j + 2)) # Decrease influence of momentum
-        
+            print "Iteration MSE: " + str(MSE)
+            print "Mean weight change: " + str(wtChange)
+            alpha = 1000.0/(2 * (1000.0 + (2*j + 2.0)))# Decrease learning rate
+            mu = 1000.0/(1000.0 + (j + 2.0)) # Decrease influence of momentum
+            print alpha
+            print mu
         #showNetwork(trainingSet, Network, attributes, classifs, False)
         pickle.dump(Network, open('Network.dat', 'w'))
         pickle.dump(testSet, open('testSet.dat', 'w'))
@@ -109,14 +112,15 @@ def feedInputsForward(prevLayer, nextLayer):
 ############################################## Backward Propogation
 def backwardPropogate(ex, network, alpha, mu):
     
-    # Keep track of squared error to evaluate performance
+    # Keep track of squared error and average magnitude of weight changes to evaluate performance
     sumSquaredError = 0.0
+    wtChange = 0.0
+    count = 0 # For finding mean weight change
     
     # Update weights between output and last hidden layer
     outNodes = network[-1]
     backLayer = network[-2]
     for out in outNodes:
-        print "Out " + out.classif + ": " + str(out.output())
 
         # Calculate error (error = target - output)
         if ex.classif == out.classif:
@@ -128,9 +132,14 @@ def backwardPropogate(ex, network, alpha, mu):
         # Update weights 
         out.deltaPrev = out.delta # Save gradient from previous iteration -- for momentum calculation
         out.delta = getGradient(out.inputs, out.weights, error)
-        out.weights = updateWeights(out, backLayer, alpha, mu)
-
-    MSE = sumSquaredError/len(outNodes)
+        
+        newWts = updateWeights(out, backLayer, alpha, mu)
+        wtChange += meanChange(out.weights, newWts)
+        count += 1
+        
+        out.weights = newWts
+        
+    MSE = float(sumSquaredError)/len(outNodes)
             
     # Update weights between hidden layers
     for i in range(2, len(network)):
@@ -141,17 +150,29 @@ def backwardPropogate(ex, network, alpha, mu):
         for i, node in enumerate(currentLayer):
 
             # Calculate error by summing up over all nodes in next level
-            error = 0
+            error = 0.0
             for nextNode in nextLayer:
-                wt = nextNode.weights[i+1] # bypass dummy weight to find wt connecting node w nextNode
+                wt = nextNode.weights[i+1] # bypass dummy weight to find weight connecting node w nextNode
                 error += wt * nextNode.delta
             
             # Update weights
             node.deltaPrev = node.delta # For momentum calculation
             node.delta = getGradient(node.inputs, node.weights, error)
-            node.weights = updateWeights(node, backLayer, alpha, mu)
+            
+            newWts = updateWeights(node, backLayer, alpha, mu)
+            wtChange += meanChange(node.weights, newWts)
+            count += 1
+        
+            node.weights = newWts
+    
+    meanWtChange = float(wtChange)/count
 
-    return network, MSE
+    return network, MSE, meanWtChange
+
+# Calculate mean magnitude of the difference between previous and updated weights 
+def meanChange(oldWts, newWts):
+    change = map(lambda x,y: math.fabs(x - y), oldWts, newWts)
+    return float(sum(change))/len(change)
 
 # Calculate gradient values to update weights         
 def getGradient(inputs, weights, error):
@@ -163,25 +184,25 @@ def getGradient(inputs, weights, error):
 # Calculate momentum (incorporates information from gradient of previous iteration)
 # Helps avoid settling in local minima
 def getMomentum(node, mu):
-    if node.deltaPrev:
-        return mu * node.deltaPrev
-    else:
-        return 0
+    return mu * node.deltaPrev
 
 # Use learning rate, momentum and gradient to update all weights into a given node
 def updateWeights(node, backLayer, alpha, mu):
-    weights = node.weights
+    wts = node.weights
+    updatedWts = []
     
     # Update weight for constant bias term
-    weights[0] = (weights[0] + alpha * 1 * node.delta) + getMomentum(node, mu)
+    newWt0 = (wts[0] + alpha * 1 * node.delta) + getMomentum(node, mu)
+    updatedWts.append(newWt0)
     
     # Iterate over all nodes in previous layer connected to current node to update corresponding weight 
-    for i in range(1, len(weights)):
+    for i in range(1, len(wts)):
         hidden = backLayer[i-1]
         aj = hidden.output()
-        weights[i] = weights[i] + alpha * aj * node.delta + getMomentum(node, mu)
+        newWt = wts[i] + alpha * aj * node.delta + getMomentum(node, mu)
+        updatedWts.append(newWt)
     
-    return weights
+    return updatedWts
     
 ############################################################################################    
 ############################################## Network
