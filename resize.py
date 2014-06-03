@@ -18,15 +18,15 @@ def main():
     directories = ["Aivazovskii", "CritRealism", "Icons", "Modernism", "SocRealism"]
     images = {}
     
-    # get list of all images (.jpg or .jpeg)
+    # Get list of all images (.jpg or .jpeg)
     for sub in directories:
         images[sub] = glob.glob(sub + r"/*g")
     
-    # resize each image, rename, and save to "small" sub-folder
+    # Resize each image, rename, and save to "small" sub-folder
     for sub in directories:
         print "\n--Inside " + sub
         for image in images[sub]:
-            name = re.search(r"/(.*)[.]", image).group(1) # extract 'artist_name' from file name
+            name = re.search(r"/(.*)[.]", image).group(1) # Extract 'artist_title' from file name
             print "****" + name
             
             command = "convert -scale 100x100! " + image + ' ' + sub + "/small/" + name + "_small.jpg"

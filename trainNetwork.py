@@ -28,7 +28,7 @@ def main():
         
         ######################## Initialization
         ####### Set network properties
-        alpha = 0.4
+        alpha = .4
         mu = 1000/(1000 + 1) # Control parameter for momentum
         testSize = 1 # Size of test set (from group of examples with each classification)
         numHiddenLayers = 1
@@ -36,11 +36,11 @@ def main():
         
         ####### Parse data    
         ### Collect all possible attributes and classifications
-        attributes = data[0][2:] # First index is the classification
+        attributes = data[0][2:] # First index is the classification, second is file name
         data = data[1:]
         sortedData = parseData(data) # Dictionary of data items sorted by classif
         classifs = sortedData.keys()
-        
+
         print "Separating training and test sets..."
         testSet, trainingSet = separateTestData(sortedData, testSize)
         
@@ -51,22 +51,27 @@ def main():
                 
         # Forward and Backward propagate, given each data item
         random.shuffle(trainingSet) # so that all the same classifs aren't next to each other?
-        for j in range(100):
+        for j in range(1):#00):
             print
             print "~~~~~~~~~~~~~~~~~Iteration " + str(j)
             trainingSumMSE = 0.0
-            for i, ex in enumerate(trainingSet):
+            for i, ex in enumerate(trainingSet[:1]):
                 print
                 print "***************Starting example " + str(i)
                 print ex
                 Network = forwardPropogate(ex, Network)
+                print "after forwards prop"
+                showNetwork(trainingSet, Network, attributes, classifs, False)
                 Network, error = backwardPropogate(ex, Network, alpha, mu)
+                print "after backwards prop"
+                showNetwork(trainingSet, Network, attributes, classifs, False)
                 Network = resetNodeInputs(Network) # Inputs (but not weights) need to be reset after each iteration
                 trainingSumMSE += error
             
-            MSE = trainingSumMSE/len(trainingSet)
+            MSE = trainingSumMSE#/len(trainingSet)
             print
             print "Iteration Mean Squared Error: " + str(MSE)
+#             alpha = 1000/(1000 + (j + 2)) # Decrease learning rate
             mu = 1000/(1000 + (j + 2)) # Decrease influence of momentum
         
         #showNetwork(trainingSet, Network, attributes, classifs, False)
@@ -110,7 +115,7 @@ def backwardPropogate(ex, network, alpha, mu):
     backLayer = network[-2]
     for out in outNodes:
         print "Out " + out.classif + ": " + str(out.output())
-        
+
         # Calculate error (error = target - output)
         if ex.classif == out.classif:
             error = 1 - out.output()
@@ -122,25 +127,27 @@ def backwardPropogate(ex, network, alpha, mu):
         out.deltaPrev = out.delta # Save gradient from previous iteration -- for momentum calculation
         out.delta = getGradient(out.inputs, out.weights, error)
         out.weights = updateWeights(out, backLayer, alpha, mu)
+
     MSE = sumSquaredError/len(outNodes)
             
     # Update weights between hidden layers
-    for i in range(3, len(network) - 2):    
+    for i in range(2, len(network)):
         nextLayer = network[-i + 1]
         currentLayer = network[-i]
         backLayer = network[-i - 1]
-        print nextLayer[0]
         
         for i, node in enumerate(currentLayer):
+
             # Calculate error by summing up over all nodes in next level
             error = 0
             for nextNode in nextLayer:
-                wt = nextNode.weight[i+1] # bypass dummy weight to find wt connecting node w nextNode
+                wt = nextNode.weights[i+1] # bypass dummy weight to find wt connecting node w nextNode
                 error += wt * nextNode.delta
             
             # Update weights
+            node.deltaPrev = node.delta # For momentum calculation
             node.delta = getGradient(node.inputs, node.weights, error)
-            node.weights = updateWeights(node, backLayer, alpha)
+            node.weights = updateWeights(node, backLayer, alpha, mu)
 
     return network, MSE
 
@@ -187,9 +194,9 @@ def initLayers(attributes, classifs, numHiddenLayers, numNodesPerLayer):
     Network.append(inputNodes)
     
     # Initialize hidden nodes
-    numHiddenNodeWts = len(inputNodes) + 1 # + 1  -- include weight for constant bias term
     for i in range(numHiddenLayers):
         hiddenLayer = []
+        numHiddenNodeWts = len(Network[-1]) + 1 # Number nodes in previous level + 1  (include weight for constant bias term)
         for j in range(numNodesPerLayer):
             hidden = HiddenNode(i, numHiddenNodeWts)
             hiddenLayer.append(hidden)
@@ -202,6 +209,7 @@ def initLayers(attributes, classifs, numHiddenLayers, numNodesPerLayer):
         outNode = OutputNode(classif, numOutNodeWts)
         outputNodes.append(outNode)
     Network.append(outputNodes) 
+    
     return Network
 
 # Removes inputs from hidden and output nodes before each forward/backward iteration 
@@ -238,11 +246,11 @@ def showNetwork(data, network, attributes, classifs, showData):
             
 ############################################################################################    
 ############################################## Nodes
-# Base 'Node' superclass  for HiddenNode and OutputNode subclasses      
+# Base 'Node' superclass for HiddenNode and OutputNode subclasses      
 class Node:
     def __init__(self, numWeights):
-        self.weights = [0.05] * numWeights
-        self.inputs = [1] # start with 1 constant bias term
+        self.weights = [random.uniform(0.0001, 0.1) for i in range(numWeights)]
+        self.inputs = [1] # Start with 1 constant bias term
         self.delta = None
         self.deltaPrev = None
     
@@ -311,7 +319,7 @@ def parseData(data):
     for ex in data:
         classif = ex[0]
         name = ex[1]
-        values = [int(val) for val in ex[2:]] # add x0
+        values = [int(val) for val in ex[2:]]
         item = DataItem(name, classif, values)
         sortedData[classif].append(item)
     return sortedData
