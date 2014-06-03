@@ -8,7 +8,10 @@ Cross validates neural network given test data set
 import sys
 import pickle
 import copy
+
 from trainNetwork import *
+from Node import *
+from Data import *
 
 def main():
     if len(sys.argv) < 2:

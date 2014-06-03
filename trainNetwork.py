@@ -10,8 +10,10 @@ import sys
 import csv
 import math
 import random
-from collections import defaultdict
 import pickle
+
+from Node import *
+from Data import *
 
 def main():
     if len(sys.argv) < 2:
@@ -28,11 +30,11 @@ def main():
         
         ######################## Initialization
         ####### Set network properties
-        alpha = .4
+        alpha = 1000/(1000 + 1)
         mu = 1000/(1000 + 1) # Control parameter for momentum
         testSize = 1 # Size of test set (from group of examples with each classification)
-        numHiddenLayers = 1
-        numNodesPerLayer = 5
+        numHiddenLayers = 3
+        numNodesPerLayer = 10
         
         ####### Parse data    
         ### Collect all possible attributes and classifications
@@ -51,27 +53,27 @@ def main():
                 
         # Forward and Backward propagate, given each data item
         random.shuffle(trainingSet) # so that all the same classifs aren't next to each other?
-        for j in range(1):#00):
+        for j in range(1000):
             print
             print "~~~~~~~~~~~~~~~~~Iteration " + str(j)
             trainingSumMSE = 0.0
-            for i, ex in enumerate(trainingSet[:1]):
-                print
-                print "***************Starting example " + str(i)
-                print ex
+            for i, ex in enumerate(trainingSet):
                 Network = forwardPropogate(ex, Network)
-                print "after forwards prop"
-                showNetwork(trainingSet, Network, attributes, classifs, False)
                 Network, error = backwardPropogate(ex, Network, alpha, mu)
-                print "after backwards prop"
-                showNetwork(trainingSet, Network, attributes, classifs, False)
                 Network = resetNodeInputs(Network) # Inputs (but not weights) need to be reset after each iteration
                 trainingSumMSE += error
+                if j == 999:
+                    print
+                    print "FINAL ITERATION: ---- "
+                    print ex
+                    for out in Network[-1]:
+                        print "---" + out.classif + ": " + str(out.output())
+                    print
             
-            MSE = trainingSumMSE#/len(trainingSet)
+            MSE = trainingSumMSE/len(trainingSet)
             print
             print "Iteration Mean Squared Error: " + str(MSE)
-#             alpha = 1000/(1000 + (j + 2)) # Decrease learning rate
+            alpha = 1000/(1000 + (j + 2)) # Decrease learning rate
             mu = 1000/(1000 + (j + 2)) # Decrease influence of momentum
         
         #showNetwork(trainingSet, Network, attributes, classifs, False)
@@ -243,112 +245,6 @@ def showNetwork(data, network, attributes, classifs, showData):
             print item.formatWithAttrs(attributes)
         
     print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-            
-############################################################################################    
-############################################## Nodes
-# Base 'Node' superclass for HiddenNode and OutputNode subclasses      
-class Node:
-    def __init__(self, numWeights):
-        self.weights = [random.uniform(0.0001, 0.1) for i in range(numWeights)]
-        self.inputs = [1] # Start with 1 constant bias term
-        self.delta = None
-        self.deltaPrev = None
-    
-    def output(self):
-        weightedIn = weightedInputs(self.inputs, self.weights)
-        return g(weightedIn)
-    
-class HiddenNode(Node):
-    def __init__(self, level, numWeights):
-        Node.__init__(self, numWeights)
-        self.l = level
-    
-    def __str__(self):
-        toPrint = "Hidden, level " + str(self.l) + ":\n*****inputs: " + str(self.inputs) + \
-                    "\n*****weights: " + str(self.weights) + "\n"
-        return toPrint
-
-class OutputNode(Node):
-    def __init__(self, classification, numWeights):
-        Node.__init__(self, numWeights)
-        self.classif = classification
-    
-    def __str__(self):
-        toPrint = "Output, " + self.classif + ":\n*****inputs: " + str(self.inputs) + \
-                    "\n*****weights: " + str(self.weights) + \
-                    "\n*****output: " + str(self.output()) + "\n"
-        return toPrint
-
-######### InputNode doesn't inherit -- has no weights, output is different
-# Passes data from examples directly into first hidden layer
-class InputNode:
-    def __init__(self, attrVal):
-        self.attr = attrVal
-    
-    value = 0
-    
-    def output(self):
-        return self.value
-    
-    def __str__(self):
-        toPrint = "Input, " + self.attr + ":\n*****value: " + str(self.value) + "\n"
-        return toPrint
-
-######### Activation function:
-#### All hidden and output nodes will use the same activation function
-# Weighted sum of inputs
-def weightedInputs(inputs, weights):
-    sum = 0.0
-    for i in range(len(inputs)):
-        sum += weights[i]*inputs[i]
-    return sum
-
-# Activation function: logistic function
-def g(x):
-    return 1/(1 + math.exp(-x))
-
-# Derivative of the logistic function
-def gprime(x):
-    return g(x)*(1 - g(x))
-
-############################################################################################
-############################################## Data
-# Parse each csv line into a 'DataItem' instance, while keeping track of all classifications
-def parseData(data):
-    sortedData = defaultdict(list)
-    for ex in data:
-        classif = ex[0]
-        name = ex[1]
-        values = [int(val) for val in ex[2:]]
-        item = DataItem(name, classif, values)
-        sortedData[classif].append(item)
-    return sortedData
-
-# For each classification, randomly divide corresponding data items into training and test sets
-def separateTestData(sortedData, testSize):
-    testSet = []
-    trainingSet = []
-    for classifSet in sortedData.values():
-        random.shuffle(classifSet)
-        testSet = testSet + classifSet[:testSize]
-        trainingSet = trainingSet + classifSet[testSize:]
-    return testSet, trainingSet
-    
-class DataItem:
-    def __init__(self, name, classification, values):
-        self.name = name
-        self.values = values
-        self.classif = classification
-        
-    def __str__(self):
-        toPrint = self.name + " -- " + self.classif 
-        return toPrint + "\n"
-    
-    def formatWithAttrs(self, attributes):
-        toPrint = self.name + " -- " + self.classif 
-        for i, attr in enumerate(attributes):
-            toPrint += "\n**" + attr + " : " + str(self.values[i])
-        return toPrint + "\n"
 
 
 if __name__ == "__main__":
