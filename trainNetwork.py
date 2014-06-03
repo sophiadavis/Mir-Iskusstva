@@ -9,10 +9,13 @@ Implements backpropogation
 import sys
 import csv
 import math
+import random
+from collections import defaultdict
+import pickle
 
 def main():
     if len(sys.argv) < 2:
-        sys.stderr.write('Usage: python ' + sys.argv[0] + ' trainingdata.csv\n')
+        sys.stderr.write('Usage: python ' + sys.argv[0] + ' trainingDataFile.csv\n')
         sys.exit(1)
     else:
         print "Reading in data...\n"
@@ -23,48 +26,52 @@ def main():
                 data.append(row)
         f.close()
         
-        print "Training neural network..."
-        
         ######################## Initialization
         ####### Set network properties
         alpha = 0.4
         mu = 1000/(1000 + 1) # Control parameter for momentum
+        testSize = 1 # Size of test set (from group of examples with each classification)
         numHiddenLayers = 1
         numNodesPerLayer = 5
         
-        ####### Parse training data    
+        ####### Parse data    
         ### Collect all possible attributes and classifications
-        attributes = data[0][2:] # first index is the classification
+        attributes = data[0][2:] # First index is the classification
         data = data[1:]
-        trainingSet, classifs = parseData(data)
+        sortedData = parseData(data) # Dictionary of data items sorted by classif
+        classifs = sortedData.keys()
+        
+        print "Separating training and test sets..."
+        testSet, trainingSet = separateTestData(sortedData, testSize)
+        
+        print "Training neural network on training data..."
         
         # Initialize input, hidden, and output layers    
         Network = initLayers(attributes, classifs, numHiddenLayers, numNodesPerLayer)
-        
-        #showNetwork(trainingSet, Network, attributes, classifs, True)
-        
+                
         # Forward and Backward propagate, given each data item
-        # MAYBE SHUFFLE SET SO THAT IT TRAINS IN A DIFFERENT ORDER?
+        random.shuffle(trainingSet) # so that all the same classifs aren't next to each other?
         for j in range(100):
             print
             print "~~~~~~~~~~~~~~~~~Iteration " + str(j)
-            trainingSumSquaredError = 0.0
+            trainingSumMSE = 0.0
             for i, ex in enumerate(trainingSet):
                 print
                 print "***************Starting example " + str(i)
-                print ex.formatWithAttrs(attributes)
-                Network = resetNodeInputs(Network) # Inputs (but not weights) need to be reset
+                print ex
                 Network = forwardPropogate(ex, Network)
                 Network, error = backwardPropogate(ex, Network, alpha, mu)
-                trainingSumSquaredError += error
+                Network = resetNodeInputs(Network) # Inputs (but not weights) need to be reset after each iteration
+                trainingSumMSE += error
             
-            meanSquaredError = trainingSumSquaredError/len(trainingSet)
+            MSE = trainingSumMSE/len(trainingSet)
             print
-            print "Iteration Mean Squared Error: " + str(meanSquaredError)
+            print "Iteration Mean Squared Error: " + str(MSE)
             mu = 1000/(1000 + (j + 2)) # Decrease influence of momentum
         
         #showNetwork(trainingSet, Network, attributes, classifs, False)
-    
+        pickle.dump(Network, open('Network.dat', 'w'))
+        pickle.dump(testSet, open('testSet.dat', 'w'))
 
 ############################################################################################    
 ############################################## Forward Propogation
@@ -115,6 +122,7 @@ def backwardPropogate(ex, network, alpha, mu):
         out.deltaPrev = out.delta # Save gradient from previous iteration -- for momentum calculation
         out.delta = getGradient(out.inputs, out.weights, error)
         out.weights = updateWeights(out, backLayer, alpha, mu)
+    MSE = sumSquaredError/len(outNodes)
             
     # Update weights between hidden layers
     for i in range(3, len(network) - 2):    
@@ -133,10 +141,8 @@ def backwardPropogate(ex, network, alpha, mu):
             # Update weights
             node.delta = getGradient(node.inputs, node.weights, error)
             node.weights = updateWeights(node, backLayer, alpha)
-    
-    
-    meanSquareError = sumSquaredError/len(outNodes)
-    return network, meanSquareError
+
+    return network, MSE
 
 # Calculate gradient values to update weights         
 def getGradient(inputs, weights, error):
@@ -301,17 +307,24 @@ def gprime(x):
 ############################################## Data
 # Parse each csv line into a 'DataItem' instance, while keeping track of all classifications
 def parseData(data):
-    trainingSet = []
-    classifsSet = set([])
+    sortedData = defaultdict(list)
     for ex in data:
         classif = ex[0]
         name = ex[1]
         values = [int(val) for val in ex[2:]] # add x0
         item = DataItem(name, classif, values)
-        trainingSet.append(item)
-        classifsSet.add(classif)
-    classifs = list(classifsSet)
-    return trainingSet, classifs
+        sortedData[classif].append(item)
+    return sortedData
+
+# For each classification, randomly divide corresponding data items into training and test sets
+def separateTestData(sortedData, testSize):
+    testSet = []
+    trainingSet = []
+    for classifSet in sortedData.values():
+        random.shuffle(classifSet)
+        testSet = testSet + classifSet[:testSize]
+        trainingSet = trainingSet + classifSet[testSize:]
+    return testSet, trainingSet
     
 class DataItem:
     def __init__(self, name, classification, values):
