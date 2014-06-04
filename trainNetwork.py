@@ -13,8 +13,8 @@ import random
 import pickle
 import time
 
-from Node import *
-from Data import *
+from node import *
+from data import *
 
 def main():
     if len(sys.argv) < 2:
@@ -33,10 +33,10 @@ def main():
         ######################## Initialization
         ####### Set network properties
         alpha = 1000.0/(2 * (1000.0 + 1.0))
-        mu = 1000.0/(1000.0 + 1.0) # Control parameter for momentum
+        mu = 1.0 - 3.0/(1.0 + 5.0), # Control parameter for momentum
         testSize = 1 # Size of test set (from group of examples with each classification)
-        numHiddenLayers = 5
-        numNodesPerLayer = 10
+        numHiddenLayers = 1
+        numNodesPerLayer = 30
         
         ####### Parse data    
         ### Collect all possible attributes and classifications
@@ -76,8 +76,8 @@ def main():
             print
             print "Iteration MSE: " + str(MSE)
             print "Mean weight change: " + str(wtChange)
-            alpha = 1000.0/(2 * (1000.0 + (2*j + 2.0)))# Decrease learning rate
-            mu = 1000.0/(1000.0 + (j + 2.0)) # Decrease influence of momentum
+            alpha = 1000.0/(2.0 * (1000.0 + (2*j + 2.0)))# Decrease learning rate
+            mu = 1.0 - 3.0/(j + 2.0 + 5.0) # Decrease influence of momentum
             print alpha
             print mu
         
@@ -134,7 +134,6 @@ def backwardPropogate(ex, network, alpha, mu):
         sumSquaredError += math.pow(error, 2)
         
         # Update weights 
-        out.deltaPrev = out.delta # Save gradient from previous iteration -- for momentum calculation
         out.delta = getGradient(out.inputs, out.weights, error)
         
         newWts = updateWeights(out, backLayer, alpha, mu)
@@ -160,7 +159,6 @@ def backwardPropogate(ex, network, alpha, mu):
                 error += wt * nextNode.delta
             
             # Update weights
-            node.deltaPrev = node.delta # For momentum calculation
             node.delta = getGradient(node.inputs, node.weights, error)
             
             newWts = updateWeights(node, backLayer, alpha, mu)
@@ -185,26 +183,30 @@ def getGradient(inputs, weights, error):
     
     return delta 
 
-# Calculate momentum (incorporates information from gradient of previous iteration)
-# Helps avoid settling in local minima
-def getMomentum(node, mu):
-    return mu * node.deltaPrev
-
 # Use learning rate, momentum and gradient to update all weights into a given node
+# Momentum = fraction of weight update given previous data item
+### Helps avoid settling in local minima
 def updateWeights(node, backLayer, alpha, mu):
     wts = node.weights
     updatedWts = []
     
     # Update weight for constant bias term
-    newWt0 = (wts[0] + alpha * 1 * node.delta) + getMomentum(node, mu)
+    updateTerm = alpha * 1 * node.delta
+    newWt0 = wts[0] + updateTerm + mu * node.prevWtUpdates[0]
+    
     updatedWts.append(newWt0)
+    node.prevWtUpdates[0] = updateTerm
     
     # Iterate over all nodes in previous layer connected to current node to update corresponding weight 
     for i in range(1, len(wts)):
         hidden = backLayer[i-1]
         aj = hidden.output()
-        newWt = wts[i] + alpha * aj * node.delta + getMomentum(node, mu)
+        
+        updateTerm = alpha * aj * node.delta
+        newWt = wts[i] + updateTerm + mu * node.prevWtUpdates[i]
+        
         updatedWts.append(newWt)
+        node.prevWtUpdates[i] = updateTerm
     
     return updatedWts
     

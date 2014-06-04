@@ -12,9 +12,9 @@ import math
 class Node:
     def __init__(self, numWeights):
         self.weights = [random.uniform(0.0001, 0.1) for i in range(numWeights)]
+        self.prevWtUpdates = [0] * numWeights
         self.inputs = [1] # Start with 1 constant bias term
         self.delta = 0
-        self.deltaPrev = 0
     
     def output(self):
         weightedIn = weightedInputs(self.inputs, self.weights)
