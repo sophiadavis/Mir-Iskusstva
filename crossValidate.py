@@ -10,31 +10,31 @@ import pickle
 import copy
 
 from trainNetwork import *
-from Node import *
-from Data import *
+from node import *
+from data import *
 
 def main():
     if len(sys.argv) < 2:
-        sys.stderr.write('Usage: python ' + sys.argv[0] + ' trainingDataFile.csv\n')
+        sys.stderr.write('Usage: python ' + sys.argv[0] + ' pickledNetwork pickledTestSet\n')
         sys.exit(1)
     else:
         print "\nProcessing network..."
         Network = pickle.load(open(sys.argv[1], 'r'))
         testSet = pickle.load(open(sys.argv[2], 'r'))
 
-        testSumMSE = 0.0
+        testSetSumMSE = 0.0
         for item in testSet:
             trained = copy.deepcopy(Network)
             output = forwardPropogate(item, trained)
             outNodes = output[-1]
-            testSumMSE += getOutputError(item, outNodes, True)
-        MSE = testSumMSE/len(testSet)
+            testSetSumMSE += getOutputError(item, outNodes, True)
+        MSE = testSetSumMSE/len(testSet)
         print "\n************************"
         print "MSE on test set: " + str(MSE)
         print
             
 # Calculate network performance classifying test data item
-# If show == true, displays all network output predictions
+# If show == True, displays all network output predictions
 def getOutputError(ex, outNodes, show):
     sumSquaredError = 0.0
     if show:

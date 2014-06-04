@@ -32,11 +32,11 @@ def main():
         
         ######################## Initialization
         ####### Set network properties
-        alpha = 1000.0/(2 * (1000.0 + 1.0))
-        mu = 1.0 - 3.0/(1.0 + 5.0), # Control parameter for momentum
+        alpha = 1000.0/(1000.0 + 1.0)
+        mu = alpha/2 # Control parameter for momentum
         testSize = 1 # Size of test set (from group of examples with each classification)
         numHiddenLayers = 1
-        numNodesPerLayer = 30
+        numNodesPerLayer = 24
         
         ####### Parse data    
         ### Collect all possible attributes and classifications
@@ -49,13 +49,15 @@ def main():
         testSet, trainingSet = separateTestData(sortedData, testSize)
         
         print "Training neural network on training data..."
+        print "Number hidden layers: " + str(numHiddenLayers)
+        print "Nodes per hidden layer: " + str(numNodesPerLayer)
         
         # Initialize input, hidden, and output layers    
         Network = initLayers(attributes, classifs, numHiddenLayers, numNodesPerLayer)
                 
         # Forward and Backward propagate, given each data item
-        random.shuffle(trainingSet) # so that all the same classifs aren't next to each other?
-        for j in range(1000):
+        random.shuffle(trainingSet) # Randomize order of data set
+        for j in range(50000):
             print
             print "~~~~~~~~~~~~~~~~~Iteration " + str(j)
             trainingSumMSE = 0.0
@@ -64,7 +66,7 @@ def main():
                 Network, error, wtChange = backwardPropogate(ex, Network, alpha, mu)
                 Network = resetNodeInputs(Network) # Inputs (but not weights) need to be reset after each iteration
                 trainingSumMSE += error
-                if j == 999:
+                if j == 49999:
                     print
                     print "FINAL ITERATION: ---- "
                     print ex
@@ -76,13 +78,14 @@ def main():
             print
             print "Iteration MSE: " + str(MSE)
             print "Mean weight change: " + str(wtChange)
-            alpha = 1000.0/(2.0 * (1000.0 + (2*j + 2.0)))# Decrease learning rate
-            mu = 1.0 - 3.0/(j + 2.0 + 5.0) # Decrease influence of momentum
+            alpha = 1000.0/(1000.0 + (j + 2.0)) # Decrease learning rate
+            mu = alpha/2
+#             mu = 1000.0/(1000.0 + (2*j + 2.0)) # Decrease influence of momentum
             print alpha
             print mu
         
         timerEnd = time.time()
-        print "Time elapsed: " + str(float(timerEnd - timerStart)/(60*60)) + " minutes."
+        print "Time elapsed: " + str(float(timerEnd - timerStart)/(60)) + " minutes."
         #showNetwork(trainingSet, Network, attributes, classifs, False)
         pickle.dump(Network, open('Network.dat', 'w'))
         pickle.dump(testSet, open('testSet.dat', 'w'))
@@ -155,7 +158,7 @@ def backwardPropogate(ex, network, alpha, mu):
             # Calculate error by summing up over all nodes in next level
             error = 0.0
             for nextNode in nextLayer:
-                wt = nextNode.weights[i+1] # bypass dummy weight to find weight connecting node w nextNode
+                wt = nextNode.weights[i+1] # Bypass dummy weight to find weight connecting node w nextNode
                 error += wt * nextNode.delta
             
             # Update weights
@@ -191,8 +194,8 @@ def updateWeights(node, backLayer, alpha, mu):
     updatedWts = []
     
     # Update weight for constant bias term
-    updateTerm = alpha * 1 * node.delta
-    newWt0 = wts[0] + updateTerm + mu * node.prevWtUpdates[0]
+    updateTerm = alpha * 1 * node.delta + mu * node.prevWtUpdates[0]
+    newWt0 = wts[0] + updateTerm
     
     updatedWts.append(newWt0)
     node.prevWtUpdates[0] = updateTerm
@@ -202,8 +205,8 @@ def updateWeights(node, backLayer, alpha, mu):
         hidden = backLayer[i-1]
         aj = hidden.output()
         
-        updateTerm = alpha * aj * node.delta
-        newWt = wts[i] + updateTerm + mu * node.prevWtUpdates[i]
+        updateTerm = (alpha * aj * node.delta) + (mu * node.prevWtUpdates[i])
+        newWt = wts[i] + updateTerm
         
         updatedWts.append(newWt)
         node.prevWtUpdates[i] = updateTerm

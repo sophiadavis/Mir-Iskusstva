@@ -37,7 +37,7 @@ class DataItem:
         
     def __str__(self):
         toPrint = self.name + " -- " + self.classif 
-        return toPrint + "\n"
+        return toPrint
     
     def formatWithAttrs(self, attributes):
         toPrint = self.name + " -- " + self.classif 
