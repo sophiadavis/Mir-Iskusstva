@@ -41,8 +41,9 @@ def main():
         print "Separating training and test sets..."
         k = 20 # number of test/training sets
         testSets, trainingSets = separateTestData2(sortedData, k)
-        pickle.dump(testSets, open('Network.dat', 'w'))
-        pickle.dump(trainingSets, open('testSet.dat', 'w'))
+        pickle.dump(trainingSets, open('trainingSets.dat', 'w'))
+        pickle.dump(testSets, open('testSets.dat', 'w'))
+        print "Training and test sets saved."
 
 # For each classification, randomly divide corresponding data items into training and test sets
 def separateTestData2(sortedData, k):
