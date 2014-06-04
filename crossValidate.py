@@ -14,7 +14,7 @@ from node import *
 from data import *
 
 def main():
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         sys.stderr.write('Usage: python ' + sys.argv[0] + ' pickledNetwork pickledTestSet\n')
         sys.exit(1)
     else:
@@ -25,18 +25,24 @@ def main():
         testSetSumMSE = 0.0
         for item in testSet:
             trained = copy.deepcopy(Network)
-            output = forwardPropogate(item, trained)
+            output = forwardPropogate(item, trained, False)
+#             showNetworkReduced(testSet, output)#), attributes, classifs, False)
             outNodes = output[-1]
-            testSetSumMSE += getOutputError(item, outNodes, True)
+            error, predictions = getOutputError(item, outNodes, True)
+            testSetSumMSE += error
+            print "Max prediction: " + predictions[max(predictions.keys())]
         MSE = testSetSumMSE/len(testSet)
         print "\n************************"
         print "MSE on test set: " + str(MSE)
         print
             
 # Calculate network performance classifying test data item
+# Return MSE and predictions that item belongs to classification
 # If show == True, displays all network output predictions
 def getOutputError(ex, outNodes, show):
     sumSquaredError = 0.0
+    predictions = {}
+    
     if show:
         print
         print ex
@@ -44,7 +50,7 @@ def getOutputError(ex, outNodes, show):
     for out in outNodes:
         if show:
             print "---" + out.classif + ": " + str(out.output())
-        
+        predictions[out.output()] = out.classif
         # Calculate error (error = target - output)
         if ex.classif == out.classif:
             error = 1 - out.output()
@@ -53,7 +59,7 @@ def getOutputError(ex, outNodes, show):
         sumSquaredError += math.pow(error, 2)
         
     MSE = sumSquaredError/len(outNodes)
-    return MSE
+    return MSE, predictions
 
 if __name__ == "__main__":
     main()

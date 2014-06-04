@@ -14,7 +14,7 @@ def parseData(data):
     for ex in data:
         classif = ex[0]
         name = ex[1]
-        values = [int(val) for val in ex[2:]]
+        values = [float(val) for val in ex[2:]]
         item = DataItem(name, classif, values)
         sortedData[classif].append(item)
     return sortedData

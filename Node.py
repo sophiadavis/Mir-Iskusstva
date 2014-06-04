@@ -11,9 +11,9 @@ import math
 # Base 'Node' superclass for HiddenNode and OutputNode subclasses      
 class Node:
     def __init__(self, numWeights):
-        self.weights = [random.uniform(0.0001, 0.1) for i in range(numWeights)]
+        self.weights = [random.uniform(-0.05, 0.05) for i in range(numWeights)]
         self.prevWtUpdates = [0] * numWeights
-        self.inputs = [1] # Start with 1 constant bias term
+        self.inputs = [1.0] # Start with 1 constant bias term
         self.delta = 0
     
     def output(self):
@@ -29,6 +29,9 @@ class HiddenNode(Node):
         toPrint = "Hidden, level " + str(self.l) + ":\n*****inputs: " + str(self.inputs) + \
                     "\n*****weights: " + str(self.weights) + "\n"
         return toPrint
+    
+    def type(self):
+        return "Hidden"
 
 class OutputNode(Node):
     def __init__(self, classification, numWeights):
@@ -40,6 +43,9 @@ class OutputNode(Node):
                     "\n*****weights: " + str(self.weights) + \
                     "\n*****output: " + str(self.output()) + "\n"
         return toPrint
+    
+    def type(self):
+        return "Output"
 
 ######### InputNode doesn't inherit -- has no weights, output is different
 # Passes data from examples directly into first hidden layer
@@ -55,6 +61,9 @@ class InputNode:
     def __str__(self):
         toPrint = "Input, " + self.attr + ":\n*****value: " + str(self.value) + "\n"
         return toPrint
+    
+    def type(self):
+        return "Input"
 
 ######### Activation function:
 #### All hidden and output nodes will use the same activation function
