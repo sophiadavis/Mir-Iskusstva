@@ -40,7 +40,7 @@ def main():
         
         ####### Separate training and test sets
         print "...Separating training and test sets..."
-        k = 2 # Number of test/training sets (must be greater than 1)
+        k = 1 # Number of test/training sets (must be greater than 1)
         testSets, trainingSets = separateTestData(sortedData, k)
                     
         print "...Training and test sets complete.\n"
@@ -67,7 +67,7 @@ def main():
             print "Training network, round " + str(i + 1) + " of " + str(k) + "."
             Network, initMSE, trainingMSE, wtChange = trainNetwork(trainingSets[i], attributes, classifs, learningRate, momentumRate, numNodesPerLayer, iterations, False, False)
             
-            print "Cross-validating network, round " + str(i) + " of " + str(k) + "."
+            print "Cross-validating network, round " + str(i + 1) + " of " + str(k) + "."
             testSetSumMSE = 0.0
             for item in testSets[i]:
                 trained = copy.deepcopy(Network)

@@ -7,6 +7,7 @@ Classes and functions for data items used to train and test neural network
 '''
 from collections import defaultdict
 import random
+import itertools
 
 # Parse each csv line into a 'DataItem' instance, while keeping track of all classifications
 def parseData(data):
@@ -21,6 +22,11 @@ def parseData(data):
 
 # For each classification, randomly divide corresponding data items into training and test sets
 def separateTestData(sortedData, k):
+    
+    # If no test set is desired
+    if k == 1:
+        raise Exception("k must be greater than 1.")
+
     testSets = defaultdict(list)
     trainingSets = defaultdict(list)
     
