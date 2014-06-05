@@ -46,10 +46,10 @@ def main():
         
         print "Training neural network..."
         
-        trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numNodesPerLayer, True)
+        trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numNodesPerLayer, 1000, True)
 
 
-def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numNodesPerLayer, saveBool):
+def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numNodesPerLayer, iterations, saveBool):
     
     ######################## Initialization
     
@@ -63,7 +63,7 @@ def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numN
     
     # Forward and Backward propagate, given each data item
     random.shuffle(dataSet) # Randomize order of data set
-    for j in range(1000):
+    for j in range(iterations):
         print
         print "~~~~~~~~~~~~~~~~~Iteration " + str(j)
         SumMSE = 0.0
@@ -79,7 +79,7 @@ def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numN
             Network, error, wtChange = backwardPropogate(ex, Network, alpha, mu)
             Network = resetNodeInputs(Network) # Inputs (but not weights) need to be reset after each iteration
             SumMSE += error
-            if j == 999:
+            if j == (iterations - 1):
                 print
                 print "FINAL ITERATION: ---- "
                 print ex

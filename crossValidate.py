@@ -12,6 +12,7 @@ Each classification present in the data set will be represented proportionally i
 import sys
 import pickle
 import copy
+import csv
 
 from trainNetwork import *
 from node import *
@@ -38,20 +39,31 @@ def main():
         classifs = sortedData.keys()
 
         print "...Separating training and test sets..."
-        k = 20 # Number of test/training sets
+        k = 20 # Number of test/training sets (must be greater than 1)
         testSets, trainingSets = separateTestData(sortedData, k)
                     
         print "...Training and test sets complete.\n"
         
         ####### Set network parameters
+        csvName = "results.csv"
         learningRate = lambda x: 1000.0/(1000.0 + x)
         momentumRate = lambda x: learningRate(x)/2
         numNodesPerLayer = [24] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...]
+        iterations = 1000
+        paramsList = ["1000.0/(1000.0 + x)", "alpha/2", str(numNodesPerLayer), str(iterations)]
+        
+        ####### Prepare csv file to store results
+        with open(csvName, 'a') as f:
+            writer = csv.writer(f)
+            writer.writerow(["Movement", "File", "MaxPred"] + classifs + ["Alpha", "Mu", "Structure", "Iterations", "TestSetMSE"])
+        f.close()
         
         ####### Train and test networks
         for i in range(k):
+            rows = []
+            
             print "Training network, round " + str(i) + " of " + str(k) + "."
-            Network = trainNetwork(trainingSets[i], attributes, classifs, learningRate, momentumRate, numNodesPerLayer, False)
+            Network = trainNetwork(trainingSets[i], attributes, classifs, learningRate, momentumRate, numNodesPerLayer, iterations, False)
             
             print "Cross-validating network, round " + str(i) + " of " + str(k) + "."
             testSetSumMSE = 0.0
@@ -61,18 +73,27 @@ def main():
                 outNodes = output[-1]
                 error, predictions = getOutputError(item, outNodes, True)
                 testSetSumMSE += error
-                print "Max prediction: " + predictions[max(predictions.keys())]
+                maxPred = classifs[predictions.index(max(predictions))]
+                print "Max prediction: " + maxPred
+                rows.append([item.classif, item.name, maxPred] + predictions + paramsList)
             MSE = testSetSumMSE/len(testSets[i])
+            
+            rowsMSE = map(lambda x: x + [MSE], rows)
+            
+            with open(csvName, 'a') as f:
+                writer = csv.writer(f)
+                writer.writerows(rowsMSE)
+            f.close()
             print "\n************************"
             print "MSE on test set: " + str(MSE)
             print
             
 # Calculate network performance classifying test data item
-# Return MSE and predictions (output of all nodes)
+# Return MSE and prediction output of all nodes, stored as { predictionValue : classification }
 # If show == True, displays all network output predictions
 def getOutputError(ex, outNodes, show):
     sumSquaredError = 0.0
-    predictions = {}
+    predictions = []
     
     if show:
         print
@@ -82,7 +103,7 @@ def getOutputError(ex, outNodes, show):
         if show:
             print "---" + out.classif + ": " + str(out.output())
         
-        predictions[out.output()] = out.classif
+        predictions.append(out.output())
         
         # Calculate error (error = target - output)
         if ex.classif == out.classif:
@@ -90,7 +111,7 @@ def getOutputError(ex, outNodes, show):
         else:
             error = 0 - out.output()
         sumSquaredError += math.pow(error, 2)
-        
+                
     MSE = sumSquaredError/len(outNodes)
     return MSE, predictions
 
