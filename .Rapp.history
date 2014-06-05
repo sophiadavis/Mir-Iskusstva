@@ -1,0 +1,363 @@
+str_extract(tour$AvgSpeed, "^\\d+[.]\\d+")
+tour$AvgSpeed <- str_extract(tour$AvgSpeed, "^\\d+[.]\\d+")
+tour$AvgSpeed <- as.numeric(tour$AvgSpeed)
+tour$AvgSpeed
+head(tour)
+tour$Entrants
+tour$Entrants <- as.numeric(tour$Entrants)
+tour$Finishers # looks ok
+str_extract(tour$Finishers, "^\\d+")
+tour$Finishers <- str_extract(tour$Finishers, "^\\d+")
+tour$Finishers <- as.numeric(tour$Finishers)
+tour$Finishers
+tour <- tour[,c(8:11, 3:7)]
+str(tour)
+library(ggplot2)
+p <- ggplot(tour, aes(x = Year, y = AvgSpeed, col = AvgSpeed))
+p + geom_line()
+tour$Dates
+tour$Year
+p + geom_line() + theme(text = element_text(family = "mono")) + labs(x = "Year", y = "Average Speed (km/h)", title = "Tour de France Winner's Average Speed, 1903 to 2013", col = "")
+p + geom_line() + theme(text = element_text(family = "mono")) + labs(x = "Year", y = "Average Speed (km/h)", title = "Tour de France Winner's Average Speed, 1903 to 2013", col = "Avg. Speed")
+p <- ggplot(tour, aes(x = Year, y = AvgSpeed, col = Length))
+p + geom_line() + theme(text = element_text(family = "mono")) + labs(x = "Year", y = "Average Speed (km/h)", title = "Tour de France Winner's Average Speed, 1903 to 2013", col = "Avg. Speed")
+p <- ggplot(tour, aes(x = Year, y = AvgSpeed, col = Length))
+p + geom_line() + theme(text = element_text(family = "mono")) + labs(x = "Year", y = "Average Speed (km/h)", title = "Tour de France Winner's Average Speed, 1903 to 2013", col = "Length of Race")
+u <- "http://boxofficemojo.com/alltime/world/"
+u <- "http://boxofficemojo.com/alltime/world/"#
+#
+film <- readHTMLTable(u)
+data.class(film)
+sapply(film, nrow)
+film <- readHTMLTable(u, which = 2)
+data.class(film)
+head(film)
+head(film) # got the right one
+film <- readHTMLTable(u, which = 2) # need all characters b/c of double header rows
+data.class(film)
+head(film) # got the right one
+film[1,]
+dim(film)
+head(film) # got the right one
+names(film)
+names(film) <- c("Rank", "Title", "Studio", "Worldwide", "Domestic", "DomesticPercent", "Overseas", "OverseasPercent", "Year")
+film[2:nrow(film),]
+film <- film[2:nrow(film),]
+film$Rank
+u <- "http://boxofficemojo.com/alltime/world/"#
+#
+film <- readHTMLTable(u)#
+data.class(film)#
+sapply(film, nrow) #
+#
+film <- readHTMLTable(u, which = 2, stringsAsFactors = F) # need all characters b/c of double header rows#
+data.class(film)#
+head(film) # got the right one#
+dim(film)#
+#
+# remove first row, rename headers#
+names(film) <- c("Rank", "Title", "Studio", "Worldwide", "Domestic", "DomesticPercent", "Overseas", "OverseasPercent", "Year")#
+#
+film <- film[2:nrow(film),]#
+#
+# Rank#
+film$Rank
+str(film)
+film$Rank
+film$Rank <- as.numeric(film$Rank)
+film$Rank
+film$Title
+film$Studio
+film$Studio <- as.factor(film$Studio)
+levels(film$Studio)
+film$Worldwide
+film$Worldwide <- str_replace_all(film$Worldwide, ",", "")
+film$Worldwide
+film$Worldwide <- str_replace_all(film$Worldwide, "$", "")
+as.numeric(film$Worldwide)
+film$Worldwide <- str_replace_all(film$Worldwide, "$", "")
+film$Worldwide
+str_replace_all(film$Worldwide, "\$", "")
+str_replace_all(film$Worldwide, "[$]", "")
+film$Worldwide <- str_replace_all(film$Worldwide, "[$]", "")
+as.numeric(film$Worldwide)
+film$Worldwide <- as.numeric(film$Worldwide)
+film$Domestic # remove $ and commas
+str_replace_all(film$Domestic, "[$]", "")
+film$Domestic <- str_replace_all(film$Domestic, "[$]", "")
+film$Domestic <- as.numeric(film$Domestic)
+film$Domestic
+film$DomesticPercent
+str_replace_all(film$DomesticPercent, "[%]", "")
+film$DomesticPercent <- as.numeric(film$DomesticPercent)
+as.numeric(film$DomesticPercent)
+film <- readHTMLTable(u)#
+data.class(film)#
+sapply(film, nrow) #
+#
+film <- readHTMLTable(u, which = 2, stringsAsFactors = F) # need all characters b/c of double header rows#
+data.class(film)#
+head(film) # got the right one#
+dim(film)#
+#
+# remove first row, rename headers#
+names(film) <- c("Rank", "Title", "Studio", "Worldwide", "Domestic", "DomesticPercent", "Overseas", "OverseasPercent", "Year")#
+#
+film <- film[2:nrow(film),]#
+str(film)#
+#
+# Rank#
+film$Rank # looks good#
+film$Rank <- as.numeric(film$Rank)#
+#
+# Title#
+film$Title # looks good#
+#
+# Studio#
+film$Studio <- as.factor(film$Studio)#
+levels(film$Studio) # looks good#
+#
+# Worldwide#
+film$Worldwide # remove $ and commas#
+film$Worldwide <- str_replace_all(film$Worldwide, ",", "")#
+film$Worldwide <- str_replace_all(film$Worldwide, "[$]", "")#
+film$Worldwide <- as.numeric(film$Worldwide)#
+#
+# Domestic#
+film$Domestic # remove $#
+film$Domestic <- str_replace_all(film$Domestic, "[$]", "")#
+film$Domestic <- as.numeric(film$Domestic)#
+#
+# DomesticPercent#
+film$DomesticPercent # remove %
+str_replace_all(film$DomesticPercent, "[%]", "")
+film$DomesticPercent <- str_replace_all(film$DomesticPercent, "[%]", "")
+film$DomesticPercent
+film$DomesticPercent <- as.numeric(film$DomesticPercent)
+film$DomesticPercent
+film$Overseas # remove $
+film$Overseas <- str_replace_all(film$Overseas, ",", "")
+film$Overseas
+film$Overseas <- str_replace_all(film$Overseas, "[$]", "")
+film$Overseas <- as.numeric(film$Overseas)
+Overseas
+film$Overseas
+film$OverseasPercent # remove %
+film$OverseasPercent <- str_replace_all(film$OverseasPercent, "[%]", "")
+film$OverseasPercent <- as.numeric(film$OverseasPercent)
+film$OverseasPercent
+film$Year
+film$Year <- str_replace_all(film$Year, "[^]", "")
+film$Year
+str_replace_all(film$Year, "[^]", "")
+str_replace_all(film$Year, "[\^]", "")
+str_extract(film$Year, "^\\d+")
+film$Year <- str_extract(film$Year, "^\\d+")
+film$Year <- as.numeric(film$Year)
+film$Year
+tapply(film$Worldwide, film$Studio, mean)
+avgGross <- tapply(film$Worldwide, film$Studio, mean)
+as.data.frame(avgGross)
+as.data.frame(studio = names(avgGross), avgGross)
+as.data.frame("studio" = names(avgGross), avgGross)
+data.frame("studio" = names(avgGross), avgGross)
+data.frame("Studio" = names(avgGross), avgGross)
+Studios <- data.frame("Studio" = names(avgGross), avgGross)
+Studios[rev(order(Studios$avgGross)),]
+TopFive <- Studios[rev(order(Studios$avgGross)),][c(1:5),]
+TopFive
+p <- ggplot(Studios, aes(x = Studios, y = avgGross)) + geom_bar(stat = "identity")
+p + geom_bar(stat = "identity")
+TopFive
+p <- ggplot(Studios, aes(x = Studio, y = avgGross))
+p + geom_bar(stat = "identity")
+p <- ggplot(TopFive, aes(x = Studio, y = avgGross))
+p + geom_bar(stat = "identity")
+p <- ggplot(TopFive, aes(x = Studio, y = avgGross, fill = Studio))
+p + geom_bar(stat = "identity") + guides(fill = F) + labs(y = "Average Gross ($1,000,000)", title = "Average Gross from top 100 Movies")
+p + geom_bar(stat = "identity") + guides(fill = F) + theme(text = element_text(family = "mono")) + labs(y = "Average Gross ($1,000,000)", title = "Average Gross from top 100 Movies")
+curve(1000/(1000 + x), from = 0, to = 100,)
+curve(1000/(1000 + x), from = 0, to = 1000)
+curve(1000/(1000 + x), from = 0, to = 10000)
+curve(100/(100 + x), from = 0, to = 10000, add = T, col = "red")
+curve(1000/(1000 + x), from = 0, to = 1000)
+curve(100/(100 + x), from = 0, to = 10000, add = T, col = "red")
+curve(1000/(1000 + x), from = 0, to = 1000)
+curve(1000/(1000 + 2*x), from = 0, to = 1000, add = T, col= "red")
+curve(1000/(2*(1000 + 2*x)), from = 0, to = 1000, add = T, col= "red")
+curve(exp(-x), from = -1000, 1000)
+exp(-835.567308034)
+exp(835.567308034)
+curve(1 - 3/(x + 5), from = 0, 1000)
+curve(1/x^2, from = 0, 1000)
+curve(1/x, from = 0, 1000)
+curve(1/(x + 100), from = 0, 1000)
+curve(100/(x + 100), from = 0, 1000)
+curve(1000/(x + 1000), from = 0, 1000)
+curve(1000/(x + 1000), from = 0, to = 10000)
+curve(100/(x + 100), from = 0, to = 10000)
+curve(1000/(x + 1000), from = 0, to = 10000)
+curve(1000/(x + 1000), from = 0, 1000)
+curve(1000/(2*x + 1000), from = 0, 1000, add = T, col = "red")
+curve(1000/(x + 1000), from = 0, 1000)
+curve(1000/(2*x + 1000), from = 0, 1000, add = T, col = "red")
+curve(1000/(x + 1000), from = 0, 10000)
+1/(1 + exp(-2571.29735001))
+curve(1/(1 + exp(-x)))
+curve(1/(1 + exp(-x)), from = -1000, to = 1000)
+curve(1/(1 + exp(-x)), from = -100, to = 100)
+curve(1/(1 + exp(-x)), from = -10, to = 10)
+curve(1/(1 + exp(-x)), from = -1, to = 1)
+curve(1/(1 + exp(-x)), from = -5, to = 5)
+g = function(x) 1/(1 + exp(-x))
+curve(g(x), from = -5, to = -5)
+curve(g(x), from = -5, to = -5)
+g = function(x) return(1/(1 + exp(-x)))
+curve(g(x), from = -5, to = -5)
+curve(g(x), from = -5, to = 5)
+g = function(x) 1/(1 + exp(-x))
+curve(g(x), from = -5, to = 5)
+curve(g(x) * (1 - g(x)), add = T, col = "red")
+images <- read.csv('imageColorData.csv')
+images
+str(images)
+dim(images)
+standardize <- function(x) {#
+	N <- length(x)#
+	std.x <- numeric(N)#
+	midrange <- (max(x) + min(x))/2#
+	range <- max(x) - min(x)#
+	for (i in 1:length(x)) {#
+		std.x[i] <- (x[i] - midrange)/(range/2)#
+	}#
+}
+str(images)
+new <- standardize(images$NumColors)
+hist(images$numColors, bins = 50)
+images$numColors
+images$NumColors
+hist(images$NumColors, bins = 50)
+hist(images$NumColors, bin = 50)
+?hist
+hist(images$NumColors, breaks = 50)
+new <- standardize(images$NumColors)
+hist(new)
+new
+max(images$NumColors)
+min(images$NumColors)
+midrange <- (max(images$NumColors) + min(max(images$NumColors)))/2
+midrange
+midrange <- (max(images$NumColors) + min(images$NumColors))/2
+midrange
+abline(v = midrange, col = "red")
+col <- images$NumColors
+mid
+range <- (max(images$NumColors) - min(images$NumColors))
+range
+(col - midrange)/(range/2)
+standardize <- function(x) {#
+	N <- length(x)#
+	std.x <- numeric(N)#
+	midrange <- (max(x) + min(x))/2#
+	range <- max(x) - min(x)#
+	std.x <- (x - midrange)/(range/2)#
+}#
+#
+new <- standardize(images$NumColors)#
+hist(images$NumColors, breaks = 50)#
+hist(new)
+standardize <- function(x) {#
+	N <- length(x)#
+	std.x <- numeric(N)#
+	midrange <- (max(x) + min(x))/2#
+	range <- max(x) - min(x)#
+	std.x <- (x - midrange)/(range)#
+}#
+#
+new <- standardize(images$NumColors)#
+hist(images$NumColors, breaks = 50)#
+hist(new)
+standardize <- function(x) {#
+	N <- length(x)#
+	std.x <- numeric(N)#
+	midrange <- (max(x) + min(x))/2#
+	range <- max(x) - min(x)#
+	std.x <- (x - midrange)/(range/4)#
+}#
+#
+new <- standardize(images$NumColors)#
+hist(images$NumColors, breaks = 50)#
+hist(new, breaks = 50)
+standardize <- function(x) {#
+	N <- length(x)#
+	std.x <- numeric(N)#
+	midrange <- (max(x) + min(x))/2#
+	range <- max(x) - min(x)#
+	std.x <- (x - midrange)/(range/4)#
+}#
+#
+new <- standardize(images$NumColors)#
+hist(images$NumColors, breaks = 50)#
+hist(new, breaks = 100)
+hist(images$NumColors, breaks = 50, prob = T)
+hist(new, breaks = 50, prob = T)
+hist(images$NumColors, breaks = 50, prob = T)
+hist(new, breaks = 50, prob = T)
+hist(images$NumColors, breaks = 50, prob = T)
+hist(new, breaks = 100, prob = T)
+images[,3:44]
+str(images[,3:44])
+str(images[,3:46])
+as.matrix(images[,3:46])
+imageMatrix <- as.matrix(images[,3:46])
+?apply
+apply(imageMatrix, 2, standardize)
+newimageMatrix <- apply(imageMatrix, 2, standardize)
+str(newimageMatrix)
+dim(newimageMatrix)
+imageMatrix[,1]
+newImageMatrix <- apply(imageMatrix, 2, standardize)
+dim(newImageMatrix)
+newImageMatrix[,1]
+newImageMatrix[,1] == new
+newImageMatrix[,1] == stdNumColors
+stdNumColors <- standardize(images$NumColors)#
+hist(images$NumColors, breaks = 50, prob = T)#
+hist(stdNumColors, breaks = 100, prob = T)#
+#
+imageMatrix <- as.matrix(images[,3:46])#
+newImageMatrix <- apply(imageMatrix, 2, standardize)#
+#
+dim(newImageMatrix)#
+newImageMatrix[,1] == stdNumColors
+ad.data.frame(newImageMatrix)
+as.data.frame(newImageMatrix)
+as.data.frame(images[,(1:2)], names(images)[2:46] = newImageMatrix)
+names(images)[2:46]
+as.data.frame(images[,(1:2)], newImageMatrix)
+images[,(1:2)]
+as.data.frame(images[,(1:2)], data.frame(newImageMatrix))
+as.data.frame(images[,(1:2)], data.frame(T(newImageMatrix)))
+as.data.frame(images[,(1:2)], data.frame(t(newImageMatrix)))
+newImageMatrix
+as.data.frame(images[,(1:2)], newImageMatrix)
+images[,(1:2)]
+dim(newImageMatrix)
+dim(images)
+cbind(images[,(1:2)], newImageMatrix)
+as.data.frame(cbind(images[,(1:2)], newImageMatrix))
+stdImages <- as.data.frame(cbind(images[,(1:2)], newImageMatrix))
+str(stdImages)
+dim(stdImages)
+stdImages$NumColors == stdNumColors
+write.csv(stdImages, file = "imageColorData_Standardized.csv")
+stdImages <- as.data.frame(cbind(images[,(1:2)], newImageMatrix), row.names == F)
+stdImages <- as.data.frame(cbind(images[,(1:2)], newImageMatrix), row.names = F)
+?as.data.frame
+stdImages <- as.data.frame(cbind(images[,(1:2)], newImageMatrix), row.names = NULL)
+str(stdImages)
+dim(stdImages)
+stdImages$NumColors == stdNumColors
+stdImages
+?write.csv
+write.csv(stdImages, row.names = F, file = "imageColorData_Standardized.csv")

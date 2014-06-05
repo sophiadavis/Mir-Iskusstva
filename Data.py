@@ -20,14 +20,21 @@ def parseData(data):
     return sortedData
 
 # For each classification, randomly divide corresponding data items into training and test sets
-def separateTestData(sortedData, testSize):
-    testSet = []
-    trainingSet = []
+def separateTestData(sortedData, k):
+    testSets = defaultdict(list)
+    trainingSets = defaultdict(list)
+    
     for classifSet in sortedData.values():
+        
+        # Divide current classification set into k test and training groups
+        testSetSize = int(float(len(classifSet))/k)
         random.shuffle(classifSet)
-        testSet = testSet + classifSet[:testSize]
-        trainingSet = trainingSet + classifSet[testSize:]
-    return testSet, trainingSet
+        
+        for i in range(k):
+            testSets[i] = testSets[i] + classifSet[(i * testSetSize) : ((i + 1) * testSetSize)]
+            trainingSets[i] = trainingSets[i] + classifSet[ : (i * testSetSize)] + classifSet[((i + 1) * testSetSize) : ]
+    
+    return testSets, trainingSets
     
 class DataItem:
     def __init__(self, name, classification, values):

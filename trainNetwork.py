@@ -12,6 +12,7 @@ import math
 import random
 import pickle
 import time
+import itertools
 
 from node import *
 from data import *
@@ -21,7 +22,6 @@ def main():
         sys.stderr.write('Usage: python ' + sys.argv[0] + ' trainingDataFile.csv\n')
         sys.exit(1)
     else:
-        timerStart = time.time()
         print "Reading in data...\n"
         with open(sys.argv[1], 'rb') as f:
             imagereader = csv.reader(f)
@@ -30,13 +30,6 @@ def main():
                 data.append(row)
         f.close()
         
-        ######################## Initialization
-        ####### Set network properties
-        alpha = 1000.0/(1000.0 + 1.0)
-        mu = alpha/2 # Control parameter for momentum
-        testSize = 1 # Size of test set (from group of examples with each classification)
-        numNodesPerLayer = [24] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...]
-        
         ####### Parse data    
         ### Collect all possible attributes and classifications
         attributes = data[0][2:] # First index is the classification, second is file name
@@ -44,56 +37,72 @@ def main():
         sortedData = parseData(data) # Dictionary of data items sorted by classif
         classifs = sortedData.keys()
 
-        print "Separating training and test sets..."
-        testSet, trainingSet = separateTestData(sortedData, testSize)
+        dataSet = list(itertools.chain.from_iterable(sortedData.values()))
         
-        print "Training neural network on training data..."
-        print "Nodes per hidden layer: " + str(numNodesPerLayer)
+        ####### Set network properties
+        learningRate = lambda x: 1000.0/(1000.0 + x)
+        momentumRate = lambda x: learningRate(x)/2
+        numNodesPerLayer = [24] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...]
         
-        # Initialize input, hidden, and output layers    
-        Network = initLayers(attributes, classifs, numNodesPerLayer) #numHiddenLayers, 
-                
-        # Forward and Backward propagate, given each data item
-        random.shuffle(trainingSet) # Randomize order of data set
-        for j in range(1000):
-            print
-            print "~~~~~~~~~~~~~~~~~Iteration " + str(j)
-            trainingSumMSE = 0.0
-            for i, ex in enumerate(trainingSet):
-                Network = forwardPropogate(ex, Network)
-                if j == 0:
-                    print
-                    print "FIRST ITERATION: ---- "
-                    print ex
-                    for out in Network[-1]:
-                        print "---" + out.classif + ": " + str(out.output())
-                    print
-                Network, error, wtChange = backwardPropogate(ex, Network, alpha, mu)
-                Network = resetNodeInputs(Network) # Inputs (but not weights) need to be reset after each iteration
-                trainingSumMSE += error
-                if j == 999:
-                    print
-                    print "FINAL ITERATION: ---- "
-                    print ex
-                    for out in Network[-1]:
-                        print "---" + out.classif + ": " + str(out.output())
-                    print
-            
-            MSE = trainingSumMSE/len(trainingSet)
-            print
-            print "Iteration MSE: " + str(MSE)
-            print "Mean weight change: " + str(wtChange)
-            alpha = 1000.0/(1000.0 + (j + 2.0)) # Decrease learning rate
-            mu = alpha/2
-#             mu = 1000.0/(1000.0 + (2*j + 2.0)) # Decrease influence of momentum
-            print alpha
-            print mu
+        print "Training neural network..."
         
-        timerEnd = time.time()
-        print "Time elapsed: " + str(float(timerEnd - timerStart)/(60)) + " minutes."
+        trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numNodesPerLayer, True)
 
+
+def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numNodesPerLayer, saveBool):
+    
+    ######################## Initialization
+    
+    # Initialize input, hidden, and output layers    
+    Network = initLayers(attributes, classifs, numNodesPerLayer)
+    print "Nodes per hidden layer: " + str(numNodesPerLayer)
+    
+    alpha = learningRate(1)
+    mu = momentumRate(1)
+    timerStart = time.time()
+    
+    # Forward and Backward propagate, given each data item
+    random.shuffle(dataSet) # Randomize order of data set
+    for j in range(1000):
+        print
+        print "~~~~~~~~~~~~~~~~~Iteration " + str(j)
+        SumMSE = 0.0
+        for i, ex in enumerate(dataSet):
+            Network = forwardPropogate(ex, Network)
+            if j == 0:
+                print
+                print "FIRST ITERATION: ---- "
+                print ex
+                for out in Network[-1]:
+                    print "---" + out.classif + ": " + str(out.output())
+                print
+            Network, error, wtChange = backwardPropogate(ex, Network, alpha, mu)
+            Network = resetNodeInputs(Network) # Inputs (but not weights) need to be reset after each iteration
+            SumMSE += error
+            if j == 999:
+                print
+                print "FINAL ITERATION: ---- "
+                print ex
+                for out in Network[-1]:
+                    print "---" + out.classif + ": " + str(out.output())
+                print
+        
+        MSE = SumMSE/len(dataSet)
+        print "Iteration MSE: " + str(MSE)
+        print "Mean weight change: " + str(wtChange)
+        
+        alpha = learningRate(j + 2.0)
+        mu = momentumRate(j + 2.0)
+        print "alpha: " + str(alpha)
+        print "mu: " + str(mu)
+    
+    timerEnd = time.time()
+    print "Time elapsed: " + str(float(timerEnd - timerStart)/(60)) + " minutes."
+    
+    if saveBool:
         pickle.dump(Network, open('Network.dat', 'w'))
-        pickle.dump(testSet, open('testSet.dat', 'w'))
+    else:
+        return Network
 
 ############################################################################################    
 ############################################## Forward Propogation

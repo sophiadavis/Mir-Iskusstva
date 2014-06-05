@@ -3,7 +3,11 @@ Sophia Davis
 5/31/2014
 classify.py
 
-Cross validates neural network given test data set
+Uses k-fold cross validation to train and test neural network
+Separates csv file into training and test sets for use in k-fold cross-validation.
+Each classification present in the data set will be represented proportionally in 
+    each test/training set (unless the value of k does not divide evenly into the 
+    number of items in all classification sets).
 '''
 import sys
 import pickle
@@ -14,26 +18,54 @@ from node import *
 from data import *
 
 def main():
-    if len(sys.argv) < 3:
-        sys.stderr.write('Usage: python ' + sys.argv[0] + ' pickledNetwork pickledTestSet\n')
+    if len(sys.argv) < 2:
+        sys.stderr.write('Usage: python ' + sys.argv[0] + ' trainingDataFile.csv\n')
         sys.exit(1)
     else:
-        print "\nProcessing network..."
-        Network = pickle.load(open(sys.argv[1], 'r'))
-        testSet = pickle.load(open(sys.argv[2], 'r'))
+        print "\nReading in data..."
+        with open(sys.argv[1], 'rb') as f:
+            imagereader = csv.reader(f)
+            data = []
+            for row in imagereader:
+                data.append(row)
+        f.close()
+        
+        ####### Parse data    
+        ### Collect all possible attributes and classifications
+        attributes = data[0][2:] # First index is the classification, second is file name
+        data = data[1:]
+        sortedData = parseData(data) # Dictionary of data items sorted by classif
+        classifs = sortedData.keys()
 
-        testSetSumMSE = 0.0
-        for item in testSet:
-            trained = copy.deepcopy(Network)
-            output = forwardPropogate(item, trained)
-            outNodes = output[-1]
-            error, predictions = getOutputError(item, outNodes, True)
-            testSetSumMSE += error
-            print "Max prediction: " + predictions[max(predictions.keys())]
-        MSE = testSetSumMSE/len(testSet)
-        print "\n************************"
-        print "MSE on test set: " + str(MSE)
-        print
+        print "...Separating training and test sets..."
+        k = 20 # Number of test/training sets
+        testSets, trainingSets = separateTestData(sortedData, k)
+                    
+        print "...Training and test sets complete.\n"
+        
+        ####### Set network parameters
+        learningRate = lambda x: 1000.0/(1000.0 + x)
+        momentumRate = lambda x: learningRate(x)/2
+        numNodesPerLayer = [24] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...]
+        
+        ####### Train and test networks
+        for i in range(k):
+            print "Training network, round " + str(i) + " of " + str(k) + "."
+            Network = trainNetwork(trainingSets[i], attributes, classifs, learningRate, momentumRate, numNodesPerLayer, False)
+            
+            print "Cross-validating network, round " + str(i) + " of " + str(k) + "."
+            testSetSumMSE = 0.0
+            for item in testSets[i]:
+                trained = copy.deepcopy(Network)
+                output = forwardPropogate(item, trained)
+                outNodes = output[-1]
+                error, predictions = getOutputError(item, outNodes, True)
+                testSetSumMSE += error
+                print "Max prediction: " + predictions[max(predictions.keys())]
+            MSE = testSetSumMSE/len(testSets[i])
+            print "\n************************"
+            print "MSE on test set: " + str(MSE)
+            print
             
 # Calculate network performance classifying test data item
 # Return MSE and predictions (output of all nodes)
