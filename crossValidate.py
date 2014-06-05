@@ -40,17 +40,17 @@ def main():
         
         ####### Separate training and test sets
         print "...Separating training and test sets..."
-        k = 20 # Number of test/training sets (must be greater than 1)
+        k = 2 # Number of test/training sets (must be greater than 1)
         testSets, trainingSets = separateTestData(sortedData, k)
                     
         print "...Training and test sets complete.\n"
         
         ####### Set network parameters
-        csvName = "results1.csv"
+        csvName = "play.csv"
         learningRate = lambda x: 1000.0/(1000.0 + x)
         momentumRate = lambda x: learningRate(x)/2
         numNodesPerLayer = [32] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...]
-        iterations = 1000
+        iterations = 10
         paramsList = ["1000.0/(1000.0 + x)", "alpha/2", str(numNodesPerLayer), str(iterations)]
         
         ####### Prepare csv file to store results
@@ -63,8 +63,9 @@ def main():
         for i in range(k):
             csvRows = []
             
-            print "Training network, round " + str(i) + " of " + str(k) + "."
-            Network, initMSE, trainingMSE, wtChange = trainNetwork(trainingSets[i], attributes, classifs, learningRate, momentumRate, numNodesPerLayer, iterations, False)
+            # Train neural network -- don't pickle network file or save MSEs from all iterations 
+            print "Training network, round " + str(i + 1) + " of " + str(k) + "."
+            Network, initMSE, trainingMSE, wtChange = trainNetwork(trainingSets[i], attributes, classifs, learningRate, momentumRate, numNodesPerLayer, iterations, False, False)
             
             print "Cross-validating network, round " + str(i) + " of " + str(k) + "."
             testSetSumMSE = 0.0

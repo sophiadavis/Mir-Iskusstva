@@ -49,17 +49,20 @@ def main():
         trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numNodesPerLayer, 1000, True)
 
 
-def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numNodesPerLayer, iterations, saveBool):
+def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numNodesPerLayer, iterations, saveBool, verboseMSE):
     
     ######################## Initialization
     
     # Initialize input, hidden, and output layers    
     Network = initLayers(attributes, classifs, numNodesPerLayer)
-    print "Nodes per hidden layer: " + str(numNodesPerLayer)
     
     alpha = learningRate(1)
     mu = momentumRate(1)
     timerStart = time.time()
+    
+    # Save MSEs from every iteration, if desired
+    if verboseMSE:
+        allMSEs = []
     
     # Forward and Backward propagate, given each data item
     random.shuffle(dataSet) # Randomize order of data set
@@ -69,13 +72,6 @@ def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numN
         SumMSE = 0.0
         for i, ex in enumerate(dataSet):
             Network = forwardPropogate(ex, Network)
-            if j == 0:
-                print
-                print "FIRST ITERATION: ---- "
-                print ex
-                for out in Network[-1]:
-                    print "---" + out.classif + ": " + str(out.output())
-                print
             Network, error, wtChange = backwardPropogate(ex, Network, alpha, mu)
             Network = resetNodeInputs(Network) # Inputs (but not weights) need to be reset after each iteration
             SumMSE += error
@@ -88,11 +84,14 @@ def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numN
                 print
         
         MSE = SumMSE/len(dataSet)
+        if verboseMSE:
+            allMSEs.append(MSE)
         if j == 0:
             initMSE = MSE
         print "Iteration MSE: " + str(MSE)
         print "Mean weight change: " + str(wtChange)
         
+        # Reset alpha and mu
         alpha = learningRate(j + 2.0)
         mu = momentumRate(j + 2.0)
         print "alpha: " + str(alpha)
@@ -103,6 +102,8 @@ def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numN
     
     if saveBool:
         pickle.dump(Network, open('Network.dat', 'w'))
+    elif verboseMSE:
+        return Network, allMSEs, wtChange
     else:
         return Network, initMSE, MSE, wtChange
 
