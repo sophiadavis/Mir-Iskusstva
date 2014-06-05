@@ -46,10 +46,10 @@ def main():
         print "...Training and test sets complete.\n"
         
         ####### Set network parameters
-        csvName = "results.csv"
+        csvName = "results1.csv"
         learningRate = lambda x: 1000.0/(1000.0 + x)
         momentumRate = lambda x: learningRate(x)/2
-        numNodesPerLayer = [24] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...]
+        numNodesPerLayer = [32] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...]
         iterations = 1000
         paramsList = ["1000.0/(1000.0 + x)", "alpha/2", str(numNodesPerLayer), str(iterations)]
         

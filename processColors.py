@@ -42,37 +42,42 @@ def main():
                 
                     name = re.search(r"small/(.*)_small", image).group(1)
                     print "****" + name
-                
-                    # Overall color metrics
-                    numColors = subprocess.check_output(["identify", "-format", "%k", image])
-                    avgColor = subprocess.check_output(["convert", image, "-scale", "1x1\!", "-format", "%[fx:int(255*r+.5)],%[fx:int(255*g+.5)],%[fx:int(255*b+.5)]", "info:"])
-                    avgColorList = avgColor.split(',')
+                    colorAttrs = getColorAttrs(image)
             
-                    #### Bin values of histograms
-                    ## gray = luminance
-                    grayHistRaw = subprocess.check_output(["convert", image, "-colorspace", "Gray", "-format", "%c", "histogram:info:"])
-            
-                    ## Red, green, blue color channels
-                    # ImageMagick converts each separate channel into grayscale 
-                    redHistRaw = subprocess.check_output(["convert", image, "-channel", "R", "-separate", "-format", "%c", "histogram:info:"])            
-                    greenHistRaw = subprocess.check_output(["convert", image, "-channel", "G", "-separate", "-format", "%c", "histogram:info:"])
-                    blueHistRaw = subprocess.check_output(["convert", image, "-channel", "B", "-separate", "-format", "%c", "histogram:info:"])
-            
-                    grayHist = grayHistRaw.split("\n")[:-1] # Last item is an empty string
-                    redHist = redHistRaw.split("\n")[:-1]
-                    greenHist = greenHistRaw.split("\n")[:-1]
-                    blueHist = blueHistRaw.split("\n")[:-1]
-            
-                    ##### Bin pixel counts
-                    grayBins = binHistogram(grayHist)
-                    redBins = binHistogram(redHist)
-                    greenBins = binHistogram(greenHist)
-                    blueBins = binHistogram(blueHist)
-            
-                    attrs = [mvmt, name, numColors] + avgColorList + grayBins + redBins + greenBins + blueBins
+                    attrs = [mvmt, name] + colorAttrs
                     writer.writerow(attrs)
         f.close()
         print "\nDone.\n"
+
+def getColorAttrs(image):
+
+    # Overall color metrics
+    numColors = subprocess.check_output(["identify", "-format", "%k", image])
+    avgColor = subprocess.check_output(["convert", image, "-scale", "1x1\!", "-format", "%[fx:int(255*r+.5)],%[fx:int(255*g+.5)],%[fx:int(255*b+.5)]", "info:"])
+    avgColorList = avgColor.split(',')
+
+    #### Bin values of histograms
+    ## gray = luminance
+    grayHistRaw = subprocess.check_output(["convert", image, "-colorspace", "Gray", "-format", "%c", "histogram:info:"])
+
+    ## Red, green, blue color channels
+    # ImageMagick converts each separate channel into grayscale 
+    redHistRaw = subprocess.check_output(["convert", image, "-channel", "R", "-separate", "-format", "%c", "histogram:info:"])            
+    greenHistRaw = subprocess.check_output(["convert", image, "-channel", "G", "-separate", "-format", "%c", "histogram:info:"])
+    blueHistRaw = subprocess.check_output(["convert", image, "-channel", "B", "-separate", "-format", "%c", "histogram:info:"])
+
+    grayHist = grayHistRaw.split("\n")[:-1] # Last item is an empty string
+    redHist = redHistRaw.split("\n")[:-1]
+    greenHist = greenHistRaw.split("\n")[:-1]
+    blueHist = blueHistRaw.split("\n")[:-1]
+
+    ##### Bin pixel counts
+    grayBins = binHistogram(grayHist)
+    redBins = binHistogram(redHist)
+    greenBins = binHistogram(greenHist)
+    blueBins = binHistogram(blueHist)
+    
+    return [numColors] + avgColorList + grayBins + redBins + greenBins + blueBins
     
 def binHistogram(hist):
     # Regex patterns for parsing histogram output
