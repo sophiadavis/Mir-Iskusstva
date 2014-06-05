@@ -10,12 +10,11 @@ Each classification present in the data set will be represented proportionally i
     number of items in all classification sets).
 '''
 import sys
-import pickle
 import copy
 import csv
 
 from trainNetwork import *
-from node import *
+# from node import *
 from data import *
 
 def main():
@@ -24,9 +23,9 @@ def main():
         sys.exit(1)
     else:
         print "\nReading in data..."
+        data = []
         with open(sys.argv[1], 'rb') as f:
             imagereader = csv.reader(f)
-            data = []
             for row in imagereader:
                 data.append(row)
         f.close()
@@ -40,7 +39,7 @@ def main():
         
         ####### Separate training and test sets
         print "...Separating training and test sets..."
-        k = 1 # Number of test/training sets (must be greater than 1)
+        k = 20 # Number of test/training sets (must be greater than 1)
         testSets, trainingSets = separateTestData(sortedData, k)
                     
         print "...Training and test sets complete.\n"
@@ -50,7 +49,7 @@ def main():
         learningRate = lambda x: 1000.0/(1000.0 + x)
         momentumRate = lambda x: learningRate(x)/2
         numNodesPerLayer = [32] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...]
-        iterations = 10
+        iterations = 1000
         paramsList = ["1000.0/(1000.0 + x)", "alpha/2", str(numNodesPerLayer), str(iterations)]
         
         ####### Prepare csv file to store results
@@ -65,7 +64,7 @@ def main():
             
             # Train neural network -- don't pickle network file or save MSEs from all iterations 
             print "Training network, round " + str(i + 1) + " of " + str(k) + "."
-            Network, initMSE, trainingMSE, wtChange = trainNetwork(trainingSets[i], attributes, classifs, learningRate, momentumRate, numNodesPerLayer, iterations, False, False)
+            Network, initMSE, trainingMSE, wtChange = trainNetwork(trainingSets[i], attributes, classifs, learningRate, momentumRate, numNodesPerLayer, iterations, False)
             
             print "Cross-validating network, round " + str(i + 1) + " of " + str(k) + "."
             testSetSumMSE = 0.0

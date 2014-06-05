@@ -10,7 +10,6 @@ import sys
 import csv
 import math
 import random
-import pickle
 import time
 import itertools
 
@@ -23,9 +22,9 @@ def main():
         sys.exit(1)
     else:
         print "Reading in data...\n"
+        data = []
         with open(sys.argv[1], 'rb') as f:
             imagereader = csv.reader(f)
-            data = []
             for row in imagereader:
                 data.append(row)
         f.close()
@@ -46,10 +45,10 @@ def main():
         
         print "Training neural network..."
         
-        trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numNodesPerLayer, 1000, True)
+        trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numNodesPerLayer, 1000, False)
 
 
-def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numNodesPerLayer, iterations, saveBool, verboseMSE):
+def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numNodesPerLayer, iterations, verboseMSE):
     
     ######################## Initialization
     
@@ -75,13 +74,6 @@ def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numN
             Network, error, wtChange = backwardPropogate(ex, Network, alpha, mu)
             Network = resetNodeInputs(Network) # Inputs (but not weights) need to be reset after each iteration
             SumMSE += error
-            if j == (iterations - 1):
-                print
-                print "FINAL ITERATION: ---- "
-                print ex
-                for out in Network[-1]:
-                    print "---" + out.classif + ": " + str(out.output())
-                print
         
         MSE = SumMSE/len(dataSet)
         if verboseMSE:
@@ -100,9 +92,7 @@ def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numN
     timerEnd = time.time()
     print "Time elapsed: " + str(float(timerEnd - timerStart)/(60)) + " minutes."
     
-    if saveBool:
-        pickle.dump(Network, open('Network.dat', 'w'))
-    elif verboseMSE:
+    if verboseMSE:
         return Network, allMSEs, wtChange
     else:
         return Network, initMSE, MSE, wtChange
