@@ -88,6 +88,8 @@ def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numN
                 print
         
         MSE = SumMSE/len(dataSet)
+        if j == 0:
+            initMSE = MSE
         print "Iteration MSE: " + str(MSE)
         print "Mean weight change: " + str(wtChange)
         
@@ -102,7 +104,7 @@ def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numN
     if saveBool:
         pickle.dump(Network, open('Network.dat', 'w'))
     else:
-        return Network
+        return Network, initMSE, MSE, wtChange
 
 ############################################################################################    
 ############################################## Forward Propogation
