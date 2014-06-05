@@ -33,7 +33,7 @@ str(stdImages)
 dim(stdImages)
 stdImages$NumColors == stdNumColors
 
-write.csv(stdImages, file = "imageColorData_Standardized.csv")
+write.csv(stdImages, row.names = F, file = "imageColorData_Standardized.csv")
 
 
 

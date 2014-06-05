@@ -52,9 +52,7 @@ def main():
         
         # Initialize input, hidden, and output layers    
         Network = initLayers(attributes, classifs, numNodesPerLayer) #numHiddenLayers, 
-        
-        showNetwork(trainingSet, Network, attributes, classifs, False)
-        
+                
         # Forward and Backward propagate, given each data item
         random.shuffle(trainingSet) # Randomize order of data set
         for j in range(1000):
@@ -62,12 +60,7 @@ def main():
             print "~~~~~~~~~~~~~~~~~Iteration " + str(j)
             trainingSumMSE = 0.0
             for i, ex in enumerate(trainingSet):
-                if j % 10 == 0:
-                    Network = forwardPropogate(ex, Network, True)
-                else:
-                    Network = forwardPropogate(ex, Network, False)
-#                 for out in Network[-1]:
-#                     print str(out.inputs)
+                Network = forwardPropogate(ex, Network)
                 if j == 0:
                     print
                     print "FIRST ITERATION: ---- "
@@ -98,14 +91,14 @@ def main():
         
         timerEnd = time.time()
         print "Time elapsed: " + str(float(timerEnd - timerStart)/(60)) + " minutes."
-        #showNetwork(trainingSet, Network, attributes, classifs, False)
+
         pickle.dump(Network, open('Network.dat', 'w'))
         pickle.dump(testSet, open('testSet.dat', 'w'))
 
 ############################################################################################    
 ############################################## Forward Propogation
 # An implementation of forward propagation
-def forwardPropogate(dataItem, network, printBool):
+def forwardPropogate(dataItem, network):
     
     ### Pass data input values into input layer
     inputNodes = network[0] 
@@ -115,20 +108,15 @@ def forwardPropogate(dataItem, network, printBool):
     
     # Progress! through rest of layers
     for i in range(1, len(network)):
-        network[i] = feedInputsForward(network[i-1], network[i], printBool)
+        network[i] = feedInputsForward(network[i-1], network[i])
         
     return network
 
 # Channels output from each node at previous level into input at next level    
-def feedInputsForward(prevLayer, nextLayer, printBool):
+def feedInputsForward(prevLayer, nextLayer):
     for nextNode in nextLayer:
         for prevNode in prevLayer:
             a = prevNode.output() # output = g(weighted sum of inputs to prevNode)
-#             if prevNode.type() == "Hidden" and printBool:
-#                 print "\n---- inputs: " + str(prevNode.inputs)
-#                 print "---- weights: " + str(prevNode.weights)
-#                 print "---- weighted inputs: " + str(weightedInputs(prevNode.inputs, prevNode.weights))
-#                 print "---- output: " + str(a)
             nextNode.inputs.append(a)        
     return nextLayer
     
@@ -151,11 +139,11 @@ def backwardPropogate(ex, network, alpha, mu):
             error = 1 - out.output()
         else:
             error = 0 - out.output()
+        
         sumSquaredError += math.pow(error, 2)
         
         # Update weights 
         out.delta = getGradient(out.inputs, out.weights, error)
-#         print "++++++++++++++++output++++++++++++++++"
         newWts = updateWeights(out, backLayer, alpha, mu)
         wtChange += meanChange(out.weights, newWts)
         count += 1
@@ -180,8 +168,6 @@ def backwardPropogate(ex, network, alpha, mu):
             
             # Update weights
             node.delta = getGradient(node.inputs, node.weights, error)
-            
-#             print "++++++++++++++++hidden++++++++++++++++"
             newWts = updateWeights(node, backLayer, alpha, mu)
             wtChange += meanChange(node.weights, newWts)
             count += 1
@@ -223,15 +209,8 @@ def updateWeights(node, backLayer, alpha, mu):
         hidden = backLayer[i-1]
         aj = hidden.output()
         
-#         if node.delta != 0:
-#             print "Delta: " + str(node.delta)
-#         else:
-#             print "no change"
-        
         updateTerm = (alpha * aj * node.delta) + (mu * node.prevWtUpdates[i])
         newWt = wts[i] + updateTerm
-#         if node.delta != 0:
-#             print "old weight: " + str(wts[i]) + " new weight: " + str(newWt)
         
         updatedWts.append(newWt)
         node.prevWtUpdates[i] = updateTerm
@@ -265,8 +244,6 @@ def initLayers(attributes, classifs, numNodesPerLayer):
     for classif in classifs:
         outNode = OutputNode(classif, numWts)
         outputNodes.append(outNode)
-#     outNode = OutputNode("Icons", numWts)
-#     outputNodes.append(outNode)
     Network.append(outputNodes) 
     
     return Network
@@ -304,11 +281,9 @@ def showNetwork(data, network, attributes, classifs, showData):
     print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
 
-# Prints network nodes and training data, for debugging purposes
-def showNetworkReduced(data, network):#, attributes, classifs, showData):
-    print "~~~~~~~~~~~~~~~~~~~~~~~~~~~NETWORK~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    #print "Names of attributes: " + str(attributes)
-    #print "\nTypes of classifications: " + str(classifs)
+# Prints network nodes, for debugging purposes
+def showNetworkNodes(data, network):
+    print "~~~~~~~~~~~~~~~~~~~~~~~~~~~NETWORK NODES~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     print "------"
     print "Input Nodes: "
     for node in network[0]:
@@ -322,10 +297,6 @@ def showNetworkReduced(data, network):#, attributes, classifs, showData):
     for node in network[-1]:
         print node
     print "------"
-    #if showData:
-    #    print "Data: "
-    #    for item in data:
-    #        print item.formatWithAttrs(attributes)
         
     print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 

@@ -25,8 +25,7 @@ def main():
         testSetSumMSE = 0.0
         for item in testSet:
             trained = copy.deepcopy(Network)
-            output = forwardPropogate(item, trained, False)
-#             showNetworkReduced(testSet, output)#), attributes, classifs, False)
+            output = forwardPropogate(item, trained)
             outNodes = output[-1]
             error, predictions = getOutputError(item, outNodes, True)
             testSetSumMSE += error
@@ -37,7 +36,7 @@ def main():
         print
             
 # Calculate network performance classifying test data item
-# Return MSE and predictions that item belongs to classification
+# Return MSE and predictions (output of all nodes)
 # If show == True, displays all network output predictions
 def getOutputError(ex, outNodes, show):
     sumSquaredError = 0.0
@@ -50,7 +49,9 @@ def getOutputError(ex, outNodes, show):
     for out in outNodes:
         if show:
             print "---" + out.classif + ": " + str(out.output())
+        
         predictions[out.output()] = out.classif
+        
         # Calculate error (error = target - output)
         if ex.classif == out.classif:
             error = 1 - out.output()
