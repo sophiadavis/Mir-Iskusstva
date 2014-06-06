@@ -77,10 +77,10 @@ def weightedInputs(inputs, weights):
 # Activation function: logistic function
 def g(x):
     return 1/(1 + math.exp(-x)) # logistic function
-    #return (math.exp(x) - math.exp(-x))/(math.exp(x) + math.exp(-x))
+    # return (math.exp(x) - math.exp(-x))/(math.exp(x) + math.exp(-x)) # tanh -- failure
 
 
 # Derivative of the logistic function
 def gprime(x):
     return g(x)*(1 - g(x)) # logistic function
-    #return 1 - math.pow(g(x), 2)
+    # return 1 - math.pow(g(x), 2) # tanh

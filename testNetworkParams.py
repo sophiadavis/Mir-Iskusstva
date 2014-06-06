@@ -36,18 +36,25 @@ def main():
 
         dataSet = list(itertools.chain.from_iterable(sortedData.values()))
         
+        iterations = 1000
+        paramCombos = []
+        printCombos = []
+        
         ####### Prepare csv file to store results
         csvName = sys.argv[2]
         with open(csvName, 'wb') as f:
             writer = csv.writer(f)
-            writer.writerow(["Alpha", "Mu", "Structure", "FinalAvgWtChange"] + range(1, 11))
+            writer.writerow(["Alpha", "Mu", "Structure", "FinalAvgWtChange"] + range(1, iterations + 1))
         f.close()
         
         ####### Set combinations of network properties
         
-        iterations = 10
-        paramCombos = []
-        printCombos = []
+        # Best performing
+        learningRate = lambda x: 1000.0/(1000.0 + x)
+        momentumRate = lambda x: learningRate(x)/2
+        numNodesPerLayer = [24] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
+        paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
+        printCombos.append(["1000.0/(1000.0 + x)", "alpha/2", str(numNodesPerLayer)])
         
         learningRate = lambda x: 1000.0/(1000.0 + x)
         momentumRate = lambda x: 0.9
@@ -57,45 +64,96 @@ def main():
         
         learningRate = lambda x: 1000.0/(1000.0 + x)
         momentumRate = lambda x: learningRate(x)/2
-        numNodesPerLayer = [24] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
+        numNodesPerLayer = [44] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
         printCombos.append(["1000.0/(1000.0 + x)", "alpha/2", str(numNodesPerLayer)])
         
-        learningRate = lambda x: 0.4
-        momentumRate = lambda x: 0.9
-        numNodesPerLayer = [24] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
-        paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
-        printCombos.append(["0.4", "0.9", str(numNodesPerLayer)])
-        
         learningRate = lambda x: 1000.0/(1000.0 + x)
-        momentumRate = lambda x: 0.9
+        momentumRate = lambda x: learningRate(x)/2
         numNodesPerLayer = [32] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
-        printCombos.append(["1000.0/(1000.0 + x)", "0.9", str(numNodesPerLayer)])
+        printCombos.append(["1000.0/(1000.0 + x)", "alpha/2", str(numNodesPerLayer)])
         
         learningRate = lambda x: 1000.0/(1000.0 + x)
-        momentumRate = lambda x: 0.9
-        numNodesPerLayer = [32, 24] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
+        momentumRate = lambda x: learningRate(x)/2
+        numNodesPerLayer = [24, 32] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
-        printCombos.append(["1000.0/(1000.0 + x)", "0.9", str(numNodesPerLayer)])
+        printCombos.append(["1000.0/(1000.0 + x)", "alpha/2", str(numNodesPerLayer)])
         
         learningRate = lambda x: 1000.0/(1000.0 + x)
-        momentumRate = lambda x: 0.9
-        numNodesPerLayer = [44] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
-        paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
-        printCombos.append(["1000.0/(1000.0 + x)", "0.9", str(numNodesPerLayer)])
-        
-        learningRate = lambda x: 1000.0/(1000.0 + x)
-        momentumRate = lambda x: 0.9
+        momentumRate = lambda x: learningRate(x)/2
         numNodesPerLayer = [5] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
-        printCombos.append(["1000.0/(1000.0 + x)", "0.9", str(numNodesPerLayer)])
-        
-        learningRate = lambda x: 1000.0/(1000.0 + x)
-        momentumRate = lambda x: 1.0 - 3.0/(x + 5.0)
-        numNodesPerLayer = [24] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
-        paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
-        printCombos.append(["1000.0/(1000.0 + x)", "1.0 - 3.0/(x + 5.0)", str(numNodesPerLayer)])
+        printCombos.append(["1000.0/(1000.0 + x)", "alpha/2", str(numNodesPerLayer)])
+
+################# Using momentumRate = learningRate -- Causes errors in logistic function        
+#         learningRate = lambda x: 1000.0/(1000.0 + x)
+#         momentumRate = lambda x: learningRate(x)
+#         numNodesPerLayer = [24] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
+#         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
+#         printCombos.append(["1000.0/(1000.0 + x)", "alpha", str(numNodesPerLayer)])
+#         
+#         learningRate = lambda x: 1000.0/(1000.0 + x)
+#         momentumRate = lambda x: learningRate(x)
+#         numNodesPerLayer = [44] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
+#         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
+#         printCombos.append(["1000.0/(1000.0 + x)", "alpha", str(numNodesPerLayer)])
+#         
+#         learningRate = lambda x: 1000.0/(1000.0 + x)
+#         momentumRate = lambda x: learningRate(x)
+#         numNodesPerLayer = [32] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
+#         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
+#         printCombos.append(["1000.0/(1000.0 + x)", "alpha", str(numNodesPerLayer)])
+#         
+#         learningRate = lambda x: 1000.0/(1000.0 + x)
+#         momentumRate = lambda x: learningRate(x)
+#         numNodesPerLayer = [24, 32] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
+#         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
+#         printCombos.append(["1000.0/(1000.0 + x)", "alpha", str(numNodesPerLayer)])
+#         
+#         learningRate = lambda x: 1000.0/(1000.0 + x)
+#         momentumRate = lambda x: learningRate(x)
+#         numNodesPerLayer = [5] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
+#         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
+#         printCombos.append(["1000.0/(1000.0 + x)", "alpha", str(numNodesPerLayer)])
+
+################# These worked 
+#         learningRate = lambda x: 0.4
+#         momentumRate = lambda x: 0.9
+#         numNodesPerLayer = [24] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
+#         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
+#         printCombos.append(["0.4", "0.9", str(numNodesPerLayer)])
+#         
+#         learningRate = lambda x: 1000.0/(1000.0 + x)
+#         momentumRate = lambda x: 0.9
+#         numNodesPerLayer = [32] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
+#         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
+#         printCombos.append(["1000.0/(1000.0 + x)", "0.9", str(numNodesPerLayer)])
+#         
+#         learningRate = lambda x: 1000.0/(1000.0 + x)
+#         momentumRate = lambda x: 0.9
+#         numNodesPerLayer = [32, 24] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
+#         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
+#         printCombos.append(["1000.0/(1000.0 + x)", "0.9", str(numNodesPerLayer)])
+#         
+#         learningRate = lambda x: 1000.0/(1000.0 + x)
+#         momentumRate = lambda x: 0.9
+#         numNodesPerLayer = [44] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
+#         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
+#         printCombos.append(["1000.0/(1000.0 + x)", "0.9", str(numNodesPerLayer)])
+#         
+#         learningRate = lambda x: 1000.0/(1000.0 + x)
+#         momentumRate = lambda x: 0.9
+#         numNodesPerLayer = [5] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
+#         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
+#         printCombos.append(["1000.0/(1000.0 + x)", "0.9", str(numNodesPerLayer)])
+
+################# Caused errors in tanh function   
+#         learningRate = lambda x: 1000.0/(1000.0 + x)
+#         momentumRate = lambda x: 1.0 - 3.0/(x + 5.0)
+#         numNodesPerLayer = [24] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
+#         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
+#         printCombos.append(["1000.0/(1000.0 + x)", "1.0 - 3.0/(x + 5.0)", str(numNodesPerLayer)])
         
         learningRate = lambda x: 2 * momentumRate(x)
         momentumRate = lambda x: 1000.0/(2*(1000.0 + x))
@@ -113,7 +171,6 @@ def main():
         for i in range(len(paramCombos)):
             print "\nTraining neural network on parameter combination " + str(i + 1) + "..."
             Network, allMSEs, wtChange = trainNetwork(dataSet, attributes, classifs, paramCombos[i][0], paramCombos[i][1], paramCombos[i][2], iterations, True)
-            print allMSEs
             with open(csvName, 'a') as f:
                 writer = csv.writer(f)
                 writer.writerow(printCombos[i] + [wtChange] + allMSEs)
