@@ -12,6 +12,7 @@ Each classification present in the data set will be represented proportionally i
 import sys
 import copy
 import csv
+import pickle
 
 from trainNetwork import *
 # from node import *
@@ -41,19 +42,21 @@ def main():
         print "...Separating training and test sets..."
         k = 20 # Number of test/training sets (must be greater than 1)
         testSets, trainingSets = separateTestData(sortedData, k)
+        pickle.dump(testSets, open('testSets.dat', 'w'))
+        pickle.dump(trainingSets, open('trainingSets.dat', 'w'))
                     
         print "...Training and test sets complete.\n"
         
         ####### Set network parameters
-        csvName = "play.csv"
+        csvName = "crossValidateCombo9.csv"
         learningRate = lambda x: 1000.0/(1000.0 + x)
         momentumRate = lambda x: learningRate(x)/2
-        numNodesPerLayer = [32] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...]
-        iterations = 1000
+        numNodesPerLayer = [24] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...]
+        iterations = 1500
         paramsList = ["1000.0/(1000.0 + x)", "alpha/2", str(numNodesPerLayer), str(iterations)]
         
         ####### Prepare csv file to store results
-        with open(csvName, 'a') as f:
+        with open(csvName, 'wb') as f:
             writer = csv.writer(f)
             writer.writerow(["Movement", "File", "MaxPred"] + classifs + ["Alpha", "Mu", "Structure", "Iterations", "FinalAvgWtChange", "InitTrainingSetMSE", "TrainingSetMSE", "TestSetMSE"])
         f.close()
@@ -74,7 +77,7 @@ def main():
                 outNodes = output[-1]
                 error, predictions = getOutputError(item, outNodes, True)
                 testSetSumMSE += error
-                maxPred = classifs[predictions.index(max(predictions))] # Predictions are always returned in original order of corresponding classifications
+                maxPred = classifs[predictions.index(max(predictions))] # Predictions are always returned in original order of classifications
                 print "Max prediction: " + maxPred
                 csvRows.append([item.classif, item.name, maxPred] + predictions + paramsList + [wtChange, initMSE, trainingMSE])
             

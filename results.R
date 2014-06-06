@@ -62,7 +62,6 @@ log[11,1:4] # 1000.0/(1000.0 + x) alpha/2      [44]     9.061062e-06
 #### tanh activation function
 tan <- merge(tan1, tan2, all = T)
 dim(tan)
-names(tan)
 
 tan.t <- t(tan)
 n <- nrow(tan.t)

@@ -38,7 +38,7 @@ def main():
             for sub in directories:
                 print "\n--Inside " + sub 
                 mvmt = re.search(r"(.*)/small", sub).group(1)
-                for image in images[sub][0:5]:
+                for image in images[sub]:
                 
                     name = re.search(r"small/(.*)_small", image).group(1)
                     print "****" + name

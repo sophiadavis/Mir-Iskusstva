@@ -1,12 +1,12 @@
 ## Standardizes input vectors for use in neural network
-images <- read.csv('imageColorData.csv')
+images <- read.csv('imageColorData_final.csv')
 
 str(images)
 dim(images)
 
 # Standardize a vector of input features to lie in the range [-2, 2]
-# equation thanks to this paper: http://www.faqs.org/faqs/ai-faq/neural-nets/part2/
-# search "Should I standardize the input variables (column vectors)?"
+# Equation comes from this paper: http://www.faqs.org/faqs/ai-faq/neural-nets/part2/
+# -- search "Should I standardize the input variables (column vectors)?"
 standardize <- function(x) {
 	N <- length(x)
 	std.x <- numeric(N)
@@ -33,7 +33,7 @@ str(stdImages)
 dim(stdImages)
 stdImages$NumColors == stdNumColors
 
-write.csv(stdImages, row.names = F, file = "imageColorData_Standardized.csv")
+write.csv(stdImages, row.names = F, file = "imageColorData_final_Standardized.csv")
 
 
 
