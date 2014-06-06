@@ -10,6 +10,7 @@
 *.csv
 
 play/
+Old\ Results/
 
 *(Autosaved)*
 *.history
