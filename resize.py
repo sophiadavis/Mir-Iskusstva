@@ -4,7 +4,7 @@ Sophia Davis
 resize.py
 
 Resizes images to 100x100 px (ignoring original aspect ratio) and
-    saves new images into 'small' subdirectory
+    saves new images into 'small' subdirectory.
 Uses ImageMagick's 'scale' operator: 
     "minify / magnify the image with pixel block averaging and pixel replication, respectively"
     http://www.imagemagick.org/script/command-line-options.php#scale
