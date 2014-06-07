@@ -54,23 +54,29 @@ p + geom_line(aes(col = ind, group = ind)) + scale_color_manual(values = pal, br
 
 # Check out which parameter combinations worked best
 log[,c(1:4,1004)]
+log[,1:4]
 # Combo 9 is best, then 8 and 11
 log[8,1:4] # 1000.0/(1000.0 + x) alpha/2      [24]     3.850372e-06
 log[9,1:4] # 1000.0/(1000.0 + x) alpha/2      [24]     0.0001503116
 log[11,1:4] # 1000.0/(1000.0 + x) alpha/2      [44]     9.061062e-06
 # 8 and 9 were actually the same combination!
 
-# What a mess -- let's just plot a subset of the most successful ones
+######## What a mess -- let's just plot a subset of the most successful ones
 apply(as.matrix(log[,5:ncol(log)]), 1, min) # models 8 through 13 were best
 
 str(logMSE.df2)
 best <- logMSE.df2[which(logMSE.df2$ind %in% paste("X", 8:13, sep="")),]
-finalBest <- logMSE.df2[which(best$final == 1),]
+best$ind <- droplevels(best$ind)
+str(best)
 
-pal <- brewer.pal(6, "Set1")
+finalBest <- best[which(best$final == 1),]
+str(finalBest)
+finalBest$ind <- droplevels(finalBest$ind)
+
+pal <- brewer.pal(8, "Set1")[c(1:5,8)]
 
 p <- ggplot(best, aes(x = x, y = values))
-p + geom_line(aes(col = ind, group = ind)) + scale_color_manual(values = pal, breaks = c("X8", "X9", "X10", "X11", "X12", "X13", "X14", "X15"), name = "Model", labels = c(8:13)) + stat_summary(finalBest, fun.y = "min", aes(group = ind, label = ind), geom = "text", size = 2, vjust = 1.5, hjust = -1, family = "mono") + theme(text = element_text(family = "mono")) + labs(x = "Iteration", y = "MSE", title = "MSE vs Number of Iterations, Logistic Activation Function", col = "Combination") 
+p + geom_line(aes(col = ind, group = ind)) + scale_color_manual(values = pal, breaks = c("X8", "X9", "X10", "X11", "X12", "X13"), name = "Model", labels = c(8:13)) + stat_summary(data = finalBest, fun.y = "min", aes(group = ind, label = ind), geom = "text", size = 3, vjust = 2, hjust = -1, family = "mono") + theme(text = element_text(family = "mono")) + labs(x = "Iteration", y = "MSE", title = "MSE vs Number of Iterations, Logistic Activation Function", col = "Combination") 
 
 
 ########################################################
