@@ -124,11 +124,11 @@ As soon as I started training a network using the standardized data set, MSE sta
 Once my neural network appeared to be capable of learning, I wrote a script that would train neural networks using several different combinations of parameters, and save the MSE from each iteration in a csv file.
 
 I couldn't get anything to successfully reduce MSE when using a hyperbolic tangent function. Perhaps if I spent more time messing with α and μ, I could get something decent. However, since some of the networks I trained using a logistic activation had shown some evidence of convergence, I didn't press the issue. 
-![TanH](/ReadmeImages/TanHTrainingResults.pdf)
+![TanH](/ReadmeImages/TanHTrainingResults.png)
 
 I also played around with ___ ___ and ___ but they were truly horrible, so I didn't plot them, as were all iterations 
 
-![TanH](/ReadmeImages/LogTrainingResults)
+![TanH](/ReadmeImages/LogTrainingResults.png)
 
 
 |Model|α|μ|Hidden Structure|Final Average Weight Change| 
