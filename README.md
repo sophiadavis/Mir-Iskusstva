@@ -80,18 +80,10 @@ All image processing was conducted using [Imagemagick command line tools](http:/
 I started off by making all images the same size -- 100px by 100px, ignoring aspect ratio (see `resize.py`). Imagemagick provides several ways to do this, but I chose to 'scale' the pictures ("minify / magnify the image with pixel block averaging and pixel replication, respectively") -- because this was the only description that I felt like I semi-understood what it was doing.
 
 Some pictures suffered more from this resizing than others. For example, Aivazovskii's Pushkin put on a little weight:  
-![big Pushkin](/Aivazovskii/PushkinNaBereguChernogoMoria.jpeg) 
-
-vs 
-
-![small, fat Pushkin](/Aivazovskii/small/PushkinNaBereguChernogoMoria_small.jpg)
+![big Pushkin](/Aivazovskii/PushkinNaBereguChernogoMoria.jpeg) vs ![small, fat Pushkin](/Aivazovskii/small/PushkinNaBereguChernogoMoria_small.jpg)
 
 So did Repin's Tolstoy:  
-![big Tolstoy](/CritRealism/Repin_LNTolstoiBosoy.jpeg)
-
-vs
-
-![squat Tolstoy](/CritRealism/small/Repin_LNTolstoiBosoy_small.jpg)
+![big Tolstoy](/CritRealism/Repin_LNTolstoiBosoy.jpeg) vs ![squat Tolstoy](/CritRealism/small/Repin_LNTolstoiBosoy_small.jpg)
 
 Oh well.
 
