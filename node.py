@@ -3,7 +3,7 @@ Sophia Davis
 5/31/2014
 Node.py
 
-Classes and activation functions (etc) for nodes in neural network
+Classes and activation functions (etc) for nodes in neural network.
 '''
 import random
 import math
@@ -47,8 +47,8 @@ class OutputNode(Node):
     def type(self):
         return "Output"
 
-######### InputNode doesn't inherit -- has no weights, output is different
-# Passes data from examples directly into first hidden layer
+# InputNode doesn't inherit from Node -- has no weights and output function is different
+### Passes data from examples directly into first hidden layer
 class InputNode:
     def __init__(self, attrVal):
         self.attr = attrVal
@@ -66,21 +66,22 @@ class InputNode:
         return "Input"
 
 ######### Activation function:
-#### All hidden and output nodes will use the same activation function
-# Weighted sum of inputs
+#### All hidden and output nodes use the same activation function
+
+# Calculate the weighted sum of node inputs
 def weightedInputs(inputs, weights):
     sum = 0.0
     for i in range(len(inputs)):
         sum += weights[i]*inputs[i]
     return sum
 
-# Activation function: logistic function
+# Activation function: logistic or hyperbolic tangent
 def g(x):
-    return 1/(1 + math.exp(-x)) # logistic function
+    return 1/(1 + math.exp(-x)) # logistic
     # return (math.exp(x) - math.exp(-x))/(math.exp(x) + math.exp(-x)) # tanh -- failure
 
 
-# Derivative of the logistic function
+# Derivative of the activation function
 def gprime(x):
-    return g(x)*(1 - g(x)) # logistic function
+    return g(x)*(1 - g(x)) # logistic
     # return 1 - math.pow(g(x), 2) # tanh

@@ -1,10 +1,16 @@
 '''
 Sophia Davis
-5/30/2014
+6/7/2014
 processColors.py
 
-Calculates metrics about the colors in images, using Imagemagick
-Stores output in a csv file
+Uses Imagemagick to calculate metrics about the colors in images inside each 
+    'movement/small' subdirectory.
+Saves output to a csv file (specified by first command line argument).
+
+Imagemagick commands used:
+    -unique color count: http://www.imagemagick.org/script/escape.php
+    -average color: http://www.imagemagick.org/Usage/quantize/#colors
+    -histograms: http://www.imagemagick.org/Usage/files/#histogram
 '''
 
 import sys
@@ -15,7 +21,7 @@ import re
 
 def main():
     if len(sys.argv) < 2:
-		sys.stderr.write('Usage: python ' + sys.argv[0] + ' trainingDataFile.csv\n')
+		sys.stderr.write('Usage: python ' + sys.argv[0] + ' imageInfoDataFile.csv\n')
 		sys.exit(1)
     else:
         print "\nProcessing colors..."
@@ -27,7 +33,7 @@ def main():
         # Define ranges of bins for histogram 
         cutPts = range(0, 255, 255/10)[:-1] # 9 bins with 25 values, 10th bin has 30
     
-        with open(sys.argv[1], 'wb') as f: # Use 'a' if this takes forever and we have problems 
+        with open(sys.argv[1], 'wb') as f:
             writer = csv.writer(f)
             writer.writerow(["Movement", "File", "NumColors", "AvgR", "AvgG", "AvgB"] + 
                                 ["Gray" + str(cutPt) for cutPt in cutPts] + 
@@ -49,6 +55,8 @@ def main():
         f.close()
         print "\nDone.\n"
 
+# Calculates number of unique colors present, average color, 
+### and binned histogram counts (Gray, Red, Green, Blue channels)
 def getColorAttrs(image):
 
     # Overall color metrics
