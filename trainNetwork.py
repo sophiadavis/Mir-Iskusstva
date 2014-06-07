@@ -1,11 +1,15 @@
 '''
 Sophia Davis
-5/31/2014
+6/7/2014
 trainNetwork.py
 
-Implements backpropogation
+Trains neural network using backwards propagation of errors.
+    main() simply trains a network given all data specified, and prints 
+        alpha (learning rate), mu (momentum rate), and MSE after each iteration,
+        as well as time spent training the entire network.
+    trainNetwork() returns a trained network, 
+        as well as information about MSE and average wt change, if desired.
 '''
-
 import sys
 import csv
 import math
@@ -47,7 +51,7 @@ def main():
         
         trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numNodesPerLayer, 1000, False)
 
-
+# Uses backprop to train a neural network
 def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numNodesPerLayer, iterations, verboseMSE):
     
     ######################## Initialization
@@ -99,7 +103,6 @@ def trainNetwork(dataSet, attributes, classifs, learningRate, momentumRate, numN
 
 ############################################################################################    
 ############################################## Forward Propogation
-# An implementation of forward propagation
 def forwardPropogate(dataItem, network):
     
     ### Pass data input values into input layer
@@ -120,6 +123,7 @@ def feedInputsForward(prevLayer, nextLayer):
         for prevNode in prevLayer:
             a = prevNode.output() # output = g(weighted sum of inputs to prevNode)
             nextNode.inputs.append(a)        
+    
     return nextLayer
     
 ############################################################################################    
@@ -183,6 +187,7 @@ def backwardPropogate(ex, network, alpha, mu):
 # Calculate mean magnitude of the difference between previous and updated weights 
 def meanChange(oldWts, newWts):
     change = map(lambda x,y: math.fabs(x - y), oldWts, newWts)
+    
     return float(sum(change))/len(change)
 
 # Calculate gradient values to update weights         
@@ -221,6 +226,7 @@ def updateWeights(node, backLayer, alpha, mu):
     
 ############################################################################################    
 ############################################## Network
+# Initialize nodes in network
 def initLayers(attributes, classifs, numNodesPerLayer):
     Network = []
     
