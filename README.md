@@ -84,10 +84,10 @@ Some pictures suffered more from this resizing than others. For example, Aivazov
 
 vs 
 
-![image](https://github.com/sophiadavis/Mir-Iskusstva/blob/master/Aivazovskii/small/PushkinNaBereguChernogoMoria_small.jpeg)
+![big Pushkin](Aivazovskii/small/PushkinNaBereguChernogoMoria_small.jpeg)
 
 So did Repin's Tolstoy:  
-![image](https://github.com/sophiadavis/Mir-Iskusstva/blob/master/CritRealism/Repin_LNTolstoiBosoy.jpeg)
+![small, fat Pushkin](https://github.com/sophiadavis/Mir-Iskusstva/blob/master/CritRealism/Repin_LNTolstoiBosoy.jpeg)
 
 vs
 
