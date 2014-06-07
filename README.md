@@ -84,14 +84,14 @@ Some pictures suffered more from this resizing than others. For example, Aivazov
 
 vs 
 
-![small, fat Pushkin](/Aivazovskii/small/PushkinNaBereguChernogoMoria_small.jpeg)
+![small, fat Pushkin](/Aivazovskii/small/PushkinNaBereguChernogoMoria_small.jpg)
 
 So did Repin's Tolstoy:  
 ![big Tolstoy](/CritRealism/Repin_LNTolstoiBosoy.jpeg)
 
 vs
 
-![squat Tolstoy](/CritRealism/small/Repin_LNTolstoiBosoy_small.jpeg)
+![squat Tolstoy](/CritRealism/small/Repin_LNTolstoiBosoy_small.jpg)
 
 Oh well.
 
@@ -119,7 +119,7 @@ Initial weights were generated randomly from [-0.05, 0.05]. The training set ord
 I began by running my neural network on a random set of training data from the imageColorData.csv file. My goal was to play around with α, μ, and the hidden node structure until I found which set of network parameters reduced MSE on the training set the most.
 
 No matter what combination of parameters I chose, no matter how long I ran my network, I couldn't get MSE to fall below .16ish, which is really bad (especially for the training set!). I felt like these guys:  
-
+![Burlaki hate ANNs](/ReadmeImages/Repin_BurlakiNaVolge_two.jpg)
 
  
  
