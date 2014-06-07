@@ -1,7 +1,6 @@
 # Plots csv's produced by testNetworkParams.py
  
 library(ggplot2)
-library(RColorBrewer)
 
 log1 <- read.csv("trainingPerformanceLogistic.csv")
 log2 <- read.csv("trainingPerformanceLogistic2.csv")
@@ -9,6 +8,7 @@ tan1 <- read.csv("trainingPerformanceTanh.csv")
 tan2 <- read.csv("trainingPerformanceTanh2.csv")
 
 
+########################################################
 #### logarithmic activation function
 # reformat csv files into long orientation so I can use gglot
 log <- merge(log1, log2, all = T)
@@ -49,7 +49,7 @@ pal <- sample(gs.pal(15))
 final <- logMSE.df2[which(logMSE.df2$final == 1),]
 
 p <- ggplot(logMSE.df2, aes(x = x, y = values))
-p + geom_line(aes(col = ind, group = ind)) + scale_color_manual(values = pal, breaks = c("X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "X9", "X10", "X11", "X12", "X13", "X14", "X15"), name = "Model", labels = c(1:15)) + stat_summary(data = final, fun.y = "min", aes(group = ind, label = ind), geom = "text", size = 2.5, vjust = 1, hjust = -1) + theme(text = element_text(family = "mono")) + labs(x = "Iteration", y = "MSE", title = "MSE vs Number of Iterations, Logistic Activation Function", col = "Combination") 
+p + geom_line(aes(col = ind, group = ind)) + scale_color_manual(values = pal, breaks = c("X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "X9", "X10", "X11", "X12", "X13", "X14", "X15"), name = "Model", labels = c(1:15)) + stat_summary(data = final, fun.y = "min", aes(group = ind, label = ind), geom = "text", size = 2.5, vjust = 1, hjust = -1, family = "mono") + theme(text = element_text(family = "mono")) + labs(x = "Iteration", y = "MSE", title = "MSE vs Number of Iterations, Logistic Activation Function", col = "Combination") 
 
 # Check out which parameter combinations worked best
 log[,c(1:4,1004)]
@@ -59,6 +59,8 @@ log[9,1:4] # 1000.0/(1000.0 + x) alpha/2      [24]     0.0001503116
 log[11,1:4] # 1000.0/(1000.0 + x) alpha/2      [44]     9.061062e-06
 # 8 and 9 were actually the same combination!
 
+
+########################################################
 #### tanh activation function
 tan <- merge(tan1, tan2, all = T)
 dim(tan)
