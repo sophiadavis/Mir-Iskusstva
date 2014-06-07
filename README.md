@@ -80,10 +80,10 @@ All image processing was conducted using [Imagemagick command line tools](http:/
 I started off by making all images the same size -- 100px by 100px, ignoring aspect ratio (see `resize.py`). Imagemagick provides several ways to do this, but I chose to 'scale' the pictures ("minify / magnify the image with pixel block averaging and pixel replication, respectively") -- because this was the only description that I felt like I semi-understood what it was doing.
 
 Some pictures suffered more from this resizing than others. For example, Aivazovskii's Pushkin put on a little weight:  
-![big Pushkin](/Aivazovskii/PushkinNaBereguChernogoMoria.jpeg) vs ![small, fat Pushkin](/Aivazovskii/small/PushkinNaBereguChernogoMoria_small.jpg)
+![big Pushkin](/Aivazovskii/PushkinNaBereguChernogoMoria.jpeg) ![small, fat Pushkin](/Aivazovskii/small/PushkinNaBereguChernogoMoria_small.jpg)
 
 So did Repin's Tolstoy:  
-![big Tolstoy](/CritRealism/Repin_LNTolstoiBosoy.jpeg) vs ![squat Tolstoy](/CritRealism/small/Repin_LNTolstoiBosoy_small.jpg)
+![big Tolstoy](/CritRealism/Repin_LNTolstoiBosoy.jpeg) ![squat Tolstoy](/CritRealism/small/Repin_LNTolstoiBosoy_small.jpg)
 
 Oh well.
 
@@ -110,15 +110,46 @@ Initial weights were generated randomly from [-0.05, 0.05]. The training set ord
 ##### Standardization of Input
 I began by running my neural network on a random set of training data from the imageColorData.csv file. My goal was to play around with α, μ, and the hidden node structure until I found which set of network parameters reduced MSE on the training set the most.
 
-No matter what combination of parameters I chose, no matter how long I ran my network, I couldn't get MSE to fall below .16ish, which is really bad (especially for the training set!). I felt like these guys:  
+No matter what combination of parameters I chose, no matter how long I ran my network, I couldn't get MSE to fall below 0.16, which is really bad (especially for the training set!). I felt like these guys:  
 ![Burlaki hate ANNs](/ReadmeImages/Repin_BurlakiNaVolge_two.jpg)
 
- 
- 
+Did some more research, and eventually found [this paper](http://www.faqs.org/faqs/ai-faq/neural-nets/part2/), by an ANN God named Warren S. Sarle. It has a whole section on why and how inputs to neural networks should be standardized (search "Subject: Should I normalize/standardize/rescale"). I used the formulae given by Sarle to standardize all of my input vectors to lie in the range [-2, 2] (see `rescaleData.R`, with standardized data set saved as imageColorData_Standardized.csv).
 
+As soon as I started training a network using the standardized data set, MSE started decreasing right away. Lovely. I felt like this:  
+![Рабочий и Колхозница](/ReadmeImages/success.jpg)  
+ 
 ## Results
 
-##### Performance on Training SEts
+##### Performance on Training Sets
+Once my neural network appeared to be capable of learning, I wrote a script that would train neural networks using several different combinations of parameters, and save the MSE from each iteration in a csv file.
+
+I couldn't get anything to successfully reduce MSE when using a hyperbolic tangent function. Perhaps if I spent more time messing with α and μ, I could get something decent. However, since some of the networks I trained using a logistic activation had shown some evidence of convergence, I didn't press the issue. 
+![TanH](/ReadmeImages/TanHTrainingResults.pdf)
+
+I also played around with ___ ___ and ___ but they were truly horrible, so I didn't plot them, as were all iterations 
+
+![TanH](/ReadmeImages/LogTrainingResults)
+
+
+|Model|α|μ|Hidden Structure|Final Average Weight Change| 
+| :------------- |:-------------:|:-------------:| :-------------:|-------------:|
+1|0.4|0.9|[24]|4.816977e-09|  
+2|1000.0/(1000.0 + x)|0.9|[24]|2.861154e-08|  
+3|1000.0/(1000.0 + x)|0.9|[32, 24]|2.696963e-09|  
+4|1000.0/(1000.0 + x)|0.9|[32]|1.446811e-10|  
+5|1000.0/(1000.0 + x)|0.9|[44]|6.896931e-14|  
+6|1000.0/(1000.0 + x)|0.9|[5]|4.425181e-04|  
+7|1000.0/(1000.0 + x)|1.0 - 3.0/(x + 5.0)|[24]|3.121103e-10|  
+8|1000.0/(1000.0 + x)|α/2|[24]|3.850372e-06|  
+9|1000.0/(1000.0 + x)|α/2|[24]|1.503116e-04|  
+10|1000.0/(1000.0 + x)|α/2|[32]|1.119652e-06|  
+11|1000.0/(1000.0 + x)|α/2|[44]|9.061062e-06|  
+12|1000.0/(1000.0 + x)|α/2|[5]|2.555765e-03|  
+13|1000.0/(1000.0 + x)|α/2|[24, 32]|1.172053e-03|  
+14|1000.0/(2 * (1000.0 + x))|0.9|[24]|7.026136e-04|  
+15|2 * μ|1000.0/(2*(1000.0 + x))|[24]|7.701949e-04|  
+
+
 
 ##### Performance on Test Sets
  
