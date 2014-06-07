@@ -1,5 +1,5 @@
 ## Standardizes input vectors for use in neural network
-images <- read.csv('imageColorData_final.csv')
+images <- read.csv('imageColorData.csv')
 
 str(images)
 dim(images)
@@ -33,7 +33,7 @@ str(stdImages)
 dim(stdImages)
 stdImages$NumColors == stdNumColors
 
-write.csv(stdImages, row.names = F, file = "imageColorData_final_Standardized.csv")
+write.csv(stdImages, row.names = F, file = "imageColorData_Standardized.csv")
 
 
 

@@ -1,7 +1,7 @@
 '''
 Sophia Davis
-5/31/2014
-Data.py
+6/7/2014
+data.py
 
 Classes and functions for data items used to train and test neural network
 '''
@@ -21,6 +21,9 @@ def parseData(data):
     return sortedData
 
 # For each classification, randomly divide corresponding data items into training and test sets
+# Each classification present in the data set will be represented proportionally in 
+#     each test/training set (unless the value of k does not divide evenly into the 
+#     number of items in all classification sets).
 def separateTestData(sortedData, k):
     
     # If no test set is desired
