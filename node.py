@@ -1,7 +1,7 @@
 '''
 Sophia Davis
-5/31/2014
-Node.py
+6/7/2014
+node.py
 
 Classes and activation functions (etc) for nodes in neural network.
 '''

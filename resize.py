@@ -1,6 +1,6 @@
 '''
 Sophia Davis
-5/31/2014
+6/7/2014
 resize.py
 
 Resizes images to 100x100 px (ignoring original aspect ratio) and

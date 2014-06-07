@@ -12,7 +12,6 @@ Imagemagick commands used:
     -average color: http://www.imagemagick.org/Usage/quantize/#colors
     -histograms: http://www.imagemagick.org/Usage/files/#histogram
 '''
-
 import sys
 import glob
 import subprocess
