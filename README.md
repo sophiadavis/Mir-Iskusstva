@@ -141,7 +141,7 @@ Using a logistic function was, in general, more successful. Of the following par
 |4|1000/(1000 + x)|0.9|[32]|1.446811e-10|  
 |5|1000/(1000 + x)|0.9|[44]|6.896931e-14|  
 |6|1000/(1000 + x)|0.9|[5]|4.425181e-04|  
-|7|1000/(1000 + x)|1.0 - 3.0/(x + 5.0)|[24]|3.121103e-10|  
+|7|1000/(1000 + x)|1 - 3/(x + 5)|[24]|3.121103e-10|  
 |**8|1000/(1000 + x)|α/2|[24]|3.850372e-06|**  
 |**9|1000/(1000 + x)|α/2|[24]|1.503116e-04|**  
 |10|1000/(1000 + x)|α/2|[32]|1.119652e-06|  
@@ -161,7 +161,7 @@ After settling on the logistic activation function, α = 1000/(1000 + x), μ = �
 
 I divided the data into 20 unique training/test set pairs. Each test set contained one picture representing each category, and the corresponding training set contained all other pictures. The network was trained for 1500 iterations. (see `crossValidate.py`)
 
-Now, each output node returned a value in a continuous range. I used the classification corresponding to the output node with the maximum output value as the network's "prediction" for a given painting. Using that metric, there was a 55% overall success rate. The table below lists the number of successes by trial, as well as the network's MSE on both training and test sets.
+Now, each output node returned a value in a continuous range. I used the classification corresponding to the output node with the maximum output value as the network's "prediction" for a given painting. Using that metric, there was a 55% overall success rate. The table below lists the number of successes by trial, as well as the network's MSE on both training and test sets. Trial 2 (bolded) had the best performance overall.
 
 |Test Number|Correct|Incorrect|TrainingSetMSE|TestSetMSE|  
 | :-------------|:-------------:|:-------------:| :-------------:|-------------:|   
@@ -186,12 +186,10 @@ Now, each output node returned a value in a continuous range. I used the classif
 |19|4|1|0.033968625|0.04044056|  
 |20|2|3|0.021225349|0.21411173|  
 
-However, by considering only the classification from the output node with the highest returned value, we're losing a lot of information. The following barcharts show the average prediction of each output node, for all paintings by category.
+However, by considering only the classification from the output node with the highest returned value, we're losing a lot of information. Each of the following barcharts considers all paintings in the test set with one classification, the height of the bars indicates the average prediction of each output node. In each graph, the highest bar is clearly the bar corresponding to the correct classification. In conclusion, this is awesome! Победа!
 
 ![Logistic](/ReadmeImages/Aivazovskii_Results.png)  
 ![Logistic](/ReadmeImages/CritRealism_Results.png)  
 ![Logistic](/ReadmeImages/Icons_Results.png)  
 ![Logistic](/ReadmeImages/Modernism_Results.png)  
 ![Logistic](/ReadmeImages/SocRealism_Results.png)  
-
-In conclusion, this is awesome! Победа!
