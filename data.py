@@ -3,13 +3,14 @@ Sophia Davis
 6/7/2014
 data.py
 
-Classes and functions for data items used to train and test neural network
+Classes and functions for storing/processing the data used to train and test neural network.
 '''
 from collections import defaultdict
 import random
 import itertools
 
-# Parse each csv line into a 'DataItem' instance, while keeping track of all classifications
+# Parse each csv line into a 'DataItem' instance
+### Returns dictionary of all data items, sorted by classification
 def parseData(data):
     sortedData = defaultdict(list)
     for ex in data:
@@ -22,20 +23,19 @@ def parseData(data):
 
 # For each classification, randomly divide corresponding data items into training and test sets
 # Each classification present in the data set will be represented proportionally in 
-#     each test/training set (unless the value of k does not divide evenly into the 
-#     number of items in all classification sets).
+### each test/training set.
+### The value of k should divide evenly into the number of items in all classification sets.
 def separateTestData(sortedData, k):
     
-    # If no test set is desired
     if k == 1:
         raise Exception("k must be greater than 1.")
 
     testSets = defaultdict(list)
     trainingSets = defaultdict(list)
     
+    # Divide each classification set into k test and training groups
     for classifSet in sortedData.values():
         
-        # Divide current classification set into k test and training groups
         testSetSize = int(float(len(classifSet))/k)
         random.shuffle(classifSet)
         
