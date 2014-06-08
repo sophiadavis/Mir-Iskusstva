@@ -175,7 +175,7 @@ I divided the data into 20 unique training/test set pairs. Each test set contain
 
 Now, recall that -- although my data is categorical -- each output node returns a value in a continuous range. I simply used the classification corresponding to the output node with the highest output value as the network's "prediction" of the classification of a given painting. Using that metric, there was a 55% overall success rate. The table below lists number of successes by trial, as well as MSE on both training and test sets. Trial 2 (bolded) had the best performance overall.
 
-|Test Number|Correct|Incorrect|TrainingSetMSE|TestSetMSE|  
+|Test Number|Correct|Incorrect|MSE on Training Set|MSE on Test Set|  
 | :-------------|:-------------:|:-------------:| :-------------:|-------------:|   
 |1|3|2|0.021113856|0.18510327|  
 |**2**|**5**|**0**|**0.019018235**|**0.03510553**|  
@@ -200,7 +200,7 @@ Now, recall that -- although my data is categorical -- each output node returns 
 
 However, by considering only the classification from the output node with the highest returned value, we're losing all information provided by the other output nodes.  
 
-Each of the following barcharts considers output node information given the 20 paintings in a certain category (pooling results from all test sets). The height of each bar indicates the average prediction of the output node representing the category labeled on the x-axis. In each graph, the highest bar is clearly the bar corresponding to the correct classification. In conclusion, Победа!
+Each of the following bar charts considers output node information given the 20 paintings in a certain category (pooling results from all test sets). The height of each bar indicates the average prediction of the output node representing the category labeled on the x-axis. In each graph, the highest bar is clearly the bar corresponding to the correct classification. In conclusion, Победа!
 
 ![Logistic](./ReadmeImages/Aivazovskii_Results.png)  
 ![Logistic](./ReadmeImages/CritRealism_Results.png)  
