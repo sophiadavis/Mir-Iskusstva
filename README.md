@@ -26,7 +26,7 @@ Rescaled images (used to obtain color features of each image) are located in the
 
 ####Training/Testing Neural Network:  
 ###### Training:
-* node.py -- classes/functions for network nodes  
+* node.py -- classes/functions for network nodes, including which activation function will be used (hyperbolic tangent or logistic)  
 * data.py -- classes/functions for data  
 * trainNetwork.py -- contains 'trainNetwork' function to train neural network given specified hidden node structure (number of hidden layers and nodes per layer), learning parameters, and a training set. Returns trained network, average weight change on the final iteration, and change in mean squared error (MSE) on the training set after each iteration.  
 
@@ -61,7 +61,7 @@ The following files contain information about network performance on a training 
 ```
 python crossValidate.py imageColorData_Standardized.csv output.csv
 ```
-crossValidate.py is currently set to separate data into just 2 pairs of training/test sets and train a network for 10 iterations on each training set (using α = 1000/(1000 + numIterations), μ = α/2, and 1 hidden layer with 24 nodes). This will run to completion very quickly and produce very awful results.  
+crossValidate.py is currently set to separate data into just k = 2 pairs of training/test sets and train a network for 10 iterations on each training set (using α = 1000/(1000 + numIterations), μ = α/2, 1 hidden layer with 24 nodes, and the logistic activation function). The results on each corresponding test set (MSE, output of all output nodes, and the classification with maximum output) will be printed to the screen and saved to output.csv. This will run to completion very quickly and produce very awful results.  
 
 ------------
 
