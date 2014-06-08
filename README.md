@@ -21,7 +21,7 @@ Rescaled images (used to obtain color features of each image) are located in the
 ####Data Processing
 * resize.py -- rescales images to 100x100px (using Imagemagick command-line tools)  
 * processColors.py -- extracts information about colors present in reduced-sized images (using Imagemagick), saves results to csv file  
-* rescaleData.R -- script to standardize all input vectors to the range [-2, 2] (processes csv file produced by processColors.py)  
+* rescaleData.R -- script to standardize all input vectors to the range \[-2, 2\] (processes csv file produced by processColors.py)  
 
 
 ####Training/Testing Neural Network:  
@@ -41,7 +41,7 @@ Rescaled images (used to obtain color features of each image) are located in the
 
 ####Results:  
 * imageColorData.csv -- output of processColors.py  
-* imageColorData_Standardized.csv -- contents of imageColorData.csv after standardization to [-2, 2] (using rescaleData.R). 
+* imageColorData_Standardized.csv -- contents of imageColorData.csv after standardization to \[-2, 2\] (using rescaleData.R). 
 **This file was used to obtain all network performance statistics.**   
 * results_final.csv -- output of crossValidate.py, using data from imageColorData_Standardized.csv, and k = 20 different training and test sets (each test set contained one painting from each movement). Each network contained one hidden layer with 24 nodes (the average number of input and output nodes), and was trained for 1500 iterations with α = 1000/(1000 + numIterations), and μ = α/2. 
 
@@ -130,7 +130,7 @@ I finally realized that the hidden nodes were always outputting 1.0. Of course M
 
 I did some more research, and eventually found [this paper](http://www.faqs.org/faqs/ai-faq/neural-nets/part2/), by an ANN God named Warren S. Sarle. It has a whole section on why and how inputs to neural networks should be standardized (search "Subject: Should I normalize/standardize/rescale"). Apparently, "scaling is an
    important consideration for gradient descent methods such as standard
-   backprop." I used the formulae given by Sarle to standardize all of my input vectors to the range [-2, 2] (see `rescaleData.R`; standardized data set saved as imageColorData_Standardized.csv).
+   backprop." I used the formulae given by Sarle to standardize all of my input vectors to the range \[-2, 2\] (see `rescaleData.R`; standardized data set saved as imageColorData_Standardized.csv).
 
 As soon as I started training a network using the standardized data set, MSE started decreasing right away. Lovely. I felt like this:  
 ![Рабочий и Колхозница](/ReadmeImages/success.jpg)  
