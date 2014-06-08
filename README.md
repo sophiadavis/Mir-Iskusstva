@@ -70,7 +70,7 @@ crossValidate.py is currently set to separate data into just 2 pairs of training
 Obviously, the first step was to name my project. I decided on Mir Iskusstva, after the early 20th century Russian avant-garde artistic movement and magazine, Мир искусства (World of Art).
 
 ##### Data 
-Next I needed to track down paintings. I chose to work with five different artistic movements. In order to make image classification as easy as possible for my neural network, I chose categories that were as different from each other as possible, and I made each category as homogeneous as possible by using works from as few artists as possible.  
+Next I needed to track down paintings. I chose to work with five different artistic movements. In order to make image classification easier for my neural network, I chose categories that were very different from each other and tried to make each category homogeneous, by selecting works from as few artists as possible.  
 
 I ended up with 100 paintings in total, with 20 representing each of the following styles:
 
@@ -88,10 +88,10 @@ All image processing was conducted using [ImageMagick command-line tools](http:/
 I started off by making all images the same size -- 100px by 100px, ignoring aspect ratio (see `resize.py`). ImageMagick provides several ways to do this, but I chose to '[scale](http://www.imagemagick.org/script/command-line-options.php#scale)' the pictures ("minify / magnify the image with pixel block averaging and pixel replication, respectively").
 
 Some pictures suffered from the disregard to aspect ratio more than others. For example, Aivazovskii's Pushkin put on a little weight:  
-![big Pushkin](/Aivazovskii/PushkinNaBereguChernogoMoria.jpeg "Normal Pushkin") ![small, fat Pushkin](/Aivazovskii/small/PushkinNaBereguChernogoMoria_small.jpg "Chubby Pushkin")
+![big Pushkin](./Aivazovskii/PushkinNaBereguChernogoMoria.jpeg "Normal Pushkin") ![small, fat Pushkin](./Aivazovskii/small/PushkinNaBereguChernogoMoria_small.jpg "Chubby Pushkin")
 
 And Repin's Tolstoy had it even worse:  
-![big Tolstoy](/CritRealism/Repin_LNTolstoiBosoy.jpeg "Normal Tolstoy") ![squat Tolstoy](/CritRealism/small/Repin_LNTolstoiBosoy_small.jpg "Толстый Толстой")
+![big Tolstoy](./CritRealism/Repin_LNTolstoiBosoy.jpeg "Normal Tolstoy") ![squat Tolstoy](./CritRealism/small/Repin_LNTolstoiBosoy_small.jpg "Толстый Толстой")
 
 Oh well.
 
@@ -124,7 +124,7 @@ I mostly used the logistic function as my activation function, but I also played
 I began by training my neural network on a random subset of data from the `imageColorData.csv` file. My goal was to play around with α, μ, and the hidden node structure (based on values suggested in the neural network literature) until I found which set of network parameters most reduced MSE on the training set.
 
 No matter what combination of parameters I chose and no matter how long I ran my network, I couldn't get MSE to fall below 0.16. I felt like these guys:  
-![Burlaki hate ANNs](/ReadmeImages/Repin_BurlakiNaVolge_two.jpg "I hate ANN's.")
+![Burlaki hate ANNs](./ReadmeImages/Repin_BurlakiNaVolge_two.jpg "I hate ANN's.")
 
 I finally realized that the output of the hidden nodes was almost always 1.0. Of course MSE wasn't decreasing very much: MSE is calculated at the output nodes, and the input to the output nodes was always the same. Because my input values were so enormous (pixel counts tend to be big), no matter how small I made my initial weights, after a few iterations, the hidden nodes became "saturated" -- the activation function would never return anything but 1.0. 
 
@@ -133,7 +133,7 @@ I did some more research, and eventually found [this paper](http://www.faqs.org/
    backprop." I used the formulae given by Sarle to standardize all of my input vectors to the range \[-2, 2\] (see `rescaleData.R`; standardized data set saved as `imageColorData_Standardized.csv`).
 
 As soon as I began training a network on the standardized data, MSE started decreasing right away. Lovely. I felt like this:  
-![Рабочий и Колхозница](/ReadmeImages/success.jpg "Победа!")  
+![Рабочий и Колхозница](./ReadmeImages/success.jpg  =x500 "Победа!")  
  
 ## Results
 
@@ -141,7 +141,7 @@ As soon as I began training a network on the standardized data, MSE started decr
 Once my neural network appeared to be capable of learning (yay!), I wrote a script that would train neural networks using several different combinations of parameters, and save the MSE from each iteration in a csv file (see `testNetworkParams.py`; output in `trainingPerformanceLogistic.csv`, `trainingPerformanceLogistic2.csv`, `trainingPerformanceTanh.csv`, and `trainingPerformanceTanh2.csv`). Training was conducted on my entire data set.
 
 I couldn't get any parameter combination to successfully reduce MSE when using a hyperbolic tangent activation function. Perhaps if I spent more time messing with α and μ, I could get some decent convergence. However, since some of the networks using a logistic activation had shown evidence of convergence, I didn't press the issue.   
-![TanH](/ReadmeImages/TanHTrainingResults.png "Dear Lord.")
+![TanH](./ReadmeImages/TanHTrainingResults.png =900x "Dear Lord.")
 
 Using the logistic function as the activation function was, in general, more successful. Of the following parameter combinations (some are repeats), model numbers 8 through 13 produced networks with fairly low training set MSE after 1000 iterations, and their performance is represented in the graph below.
 
@@ -163,7 +163,7 @@ Using the logistic function as the activation function was, in general, more suc
 |14|1000/(2 * (1000 + x))|0.9|[24]|7.026136e-04|  
 |15|2 * μ|1000/(2*(1000 + x))|[24]|7.701949e-04|  
 
-![Logistic](/ReadmeImages/LogTrainingResults.png "Convergence?")
+![Logistic](./ReadmeImages/LogTrainingResults.png =900x "Convergence?")
 
 Models 8, 9, and 11 (bolded) performed best. 8 and 9 actually used the same combination of parameters, and model 11 also had the same α and μ. But whereas 8 and 9 had a single layer of 24 hidden nodes (the average number of input/output nodes), 11 had 44 hidden nodes (the same as the number of input nodes). To avoid overfitting the data, I opted for the parameters used in models 8 and 9. These also resulted in relatively high final average weight changes, so I hoped that perhaps the weights would change even more (and the network would show even better convergence) if I could train the network for longer.
 
@@ -199,10 +199,11 @@ Now, recall that -- although my data is categorical -- each output node returns 
 |20|2|3|0.021225349|0.21411173|  
 
 However, by considering only the classification from the output node with the highest returned value, we're losing all information provided by the other output nodes.  
+
 Each of the following barcharts considers output node information given the 20 paintings in a certain category (pooling results from all test sets). The height of each bar indicates the average prediction of the output node representing the category labeled on the x-axis. In each graph, the highest bar is clearly the bar corresponding to the correct classification. In conclusion, Победа!
 
-![Logistic](/ReadmeImages/Aivazovskii_Results.png)  
-![Logistic](/ReadmeImages/CritRealism_Results.png)  
-![Logistic](/ReadmeImages/Icons_Results.png)  
-![Logistic](/ReadmeImages/Modernism_Results.png)  
-![Logistic](/ReadmeImages/SocRealism_Results.png)  
+![Logistic](./ReadmeImages/Aivazovskii_Results.png =900x)  
+![Logistic](./ReadmeImages/CritRealism_Results.png =900x)  
+![Logistic](./ReadmeImages/Icons_Results.png =900x)  
+![Logistic](./ReadmeImages/Modernism_Results.png =900x)  
+![Logistic](./ReadmeImages/SocRealism_Results.png =900x)  
