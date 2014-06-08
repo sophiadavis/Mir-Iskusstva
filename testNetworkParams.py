@@ -49,7 +49,8 @@ def main():
             writer.writerow(["Alpha", "Mu", "Structure", "FinalAvgWtChange"] + range(1, iterations + 1))
         f.close()
         
-        ####### Set combinations of network properties
+        ####### Set combinations of network properties here: 
+        # For example -- 
         
         # Best performing
         learningRate = lambda x: 1000.0/(1000.0 + x)
@@ -61,18 +62,6 @@ def main():
         learningRate = lambda x: 1000.0/(1000.0 + x)
         momentumRate = lambda x: learningRate(x)/2
         numNodesPerLayer = [44] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
-        paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
-        printCombos.append(["1000.0/(1000.0 + x)", "alpha/2", str(numNodesPerLayer)])
-        
-        learningRate = lambda x: 1000.0/(1000.0 + x)
-        momentumRate = lambda x: learningRate(x)/2
-        numNodesPerLayer = [32] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
-        paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
-        printCombos.append(["1000.0/(1000.0 + x)", "alpha/2", str(numNodesPerLayer)])
-        
-        learningRate = lambda x: 1000.0/(1000.0 + x)
-        momentumRate = lambda x: learningRate(x)/2
-        numNodesPerLayer = [24, 32] # [nodesInLayer0, nodesInLayer1, nodesInLayer2 ...
         paramCombos.append([learningRate, momentumRate, numNodesPerLayer])
         printCombos.append(["1000.0/(1000.0 + x)", "alpha/2", str(numNodesPerLayer)])
         

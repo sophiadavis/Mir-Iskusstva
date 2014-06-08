@@ -3,11 +3,11 @@ Sophia Davis
 6/7/2014
 processColors.py
 
-Uses Imagemagick to calculate metrics about the colors in images inside each 
+Uses ImageMagick to calculate metrics about the colors in images inside each 
     'movement/small' subdirectory.
 Saves output to a csv file (specified by first command line argument).
 
-Imagemagick commands used:
+ImageMagick commands used:
     -unique color count: http://www.imagemagick.org/script/escape.php
     -average color: http://www.imagemagick.org/Usage/quantize/#colors
     -histograms: http://www.imagemagick.org/Usage/files/#histogram
