@@ -202,8 +202,8 @@ However, by considering only the classification from the output node with the hi
 
 Each of the following barcharts considers output node information given the 20 paintings in a certain category (pooling results from all test sets). The height of each bar indicates the average prediction of the output node representing the category labeled on the x-axis. In each graph, the highest bar is clearly the bar corresponding to the correct classification. In conclusion, Победа!
 
-![Logistic](./ReadmeImages/Aivazovskii_Results.png =900x)  
-![Logistic](./ReadmeImages/CritRealism_Results.png =900x)  
-![Logistic](./ReadmeImages/Icons_Results.png =900x)  
-![Logistic](./ReadmeImages/Modernism_Results.png =900x)  
-![Logistic](./ReadmeImages/SocRealism_Results.png =900x)  
+![Logistic](/ReadmeImages/Aivazovskii_Results.png =900x)  
+![Logistic](/ReadmeImages/CritRealism_Results.png =900x)  
+![Logistic](/ReadmeImages/Icons_Results.png =900x)  
+![Logistic](/ReadmeImages/Modernism_Results.png =900x)  
+![Logistic](/ReadmeImages/SocRealism_Results.png =900x)  
